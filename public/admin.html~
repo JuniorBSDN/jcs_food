@@ -3,85 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSC FOOD - Admin</title>
+    <title>JCS FOODS - Painel Administrativo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Estilos para impressão: esconde menus e mostra apenas o conteúdo principal */
         @media print {
-            .no-print {
-                display: none !important;
-            }
-            body {
-                background-color: white;
-            }
-            .print-container {
-                padding: 0;
-                margin: 0;
-                width: 100%;
-            }
-            .shadow-sm {
-                box-shadow: none !important;
-                border: 1px solid #ddd;
-            }
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .print-container { padding: 0; margin: 0; width: 100%; }
+            .shadow-sm { box-shadow: none !important; border: 1px solid #ddd; }
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans flex min-h-screen">
+<body class="bg-gray-100 font-sans flex min-h-screen hidden" id="admin-body">
 
-    <aside class="w-64 bg-gray-900 text-white p-4 no-print flex flex-col">
-        <div class="flex items-center space-x-2 mb-8 justify-center mt-4">
-            <i class="fas fa-hamburger text-2xl text-red-500"></i>
-            <h2 class="text-2xl font-bold text-white">JSC Admin</h2>
+    <aside class="w-64 bg-gray-900 text-white p-4 no-print flex flex-col shadow-2xl z-10">
+        <div class="flex flex-col items-center justify-center mt-6 mb-10 border-b border-gray-700 pb-6">
+            <div class="w-28 h-28 bg-white rounded-full p-1 shadow-lg mb-4 flex items-center justify-center overflow-hidden">
+                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="Logotipo JSC FOOD" class="w-full h-full object-cover rounded-full">
+            </div>
+            <h2 class="text-xl font-bold text-white tracking-wider">ADMINISTRAÇÃO</h2>
         </div>
 
-        <nav class="space-y-2 flex-grow">
-            <button class="nav-btn w-full text-left py-3 px-4 bg-red-600 rounded transition flex items-center" data-target="dashboard">
-                <i class="fas fa-chart-line w-6 mr-2"></i> Dashboard
+        <nav class="space-y-3 flex-grow">
+            <button class="nav-btn w-full text-left py-3 px-4 bg-red-600 font-medium rounded-lg shadow transition flex items-center" data-target="dashboard">
+                <i class="fas fa-chart-line w-6 text-center mr-2"></i> Dashboard
             </button>
-            <button class="nav-btn w-full text-left py-3 px-4 hover:bg-gray-800 rounded transition flex items-center" data-target="produtos">
-                <i class="fas fa-box-open w-6 mr-2"></i> Produtos
+            <button class="nav-btn w-full text-left py-3 px-4 hover:bg-gray-800 text-gray-300 hover:text-white font-medium rounded-lg transition flex items-center" data-target="produtos">
+                <i class="fas fa-box-open w-6 text-center mr-2"></i> Produtos
             </button>
-            <button class="nav-btn w-full text-left py-3 px-4 hover:bg-gray-800 rounded transition flex items-center" data-target="relatorios">
-                <i class="fas fa-file-invoice-dollar w-6 mr-2"></i> Relatórios
+            <button class="nav-btn w-full text-left py-3 px-4 hover:bg-gray-800 text-gray-300 hover:text-white font-medium rounded-lg transition flex items-center" data-target="relatorios">
+                <i class="fas fa-file-invoice-dollar w-6 text-center mr-2"></i> Relatórios
             </button>
         </nav>
 
-        <div class="border-t border-gray-700 pt-4 text-sm text-gray-400 text-center">
-            V 1.0 - JSC FOOD
+        <div class="border-t border-gray-800 pt-4 text-xs text-gray-500 text-center font-semibold">
+            &copy; 2020 JCS FOOD V 1.0 <br> Produto Back Informática
         </div>
     </aside>
 
     <main class="flex-1 p-8 print-container overflow-y-auto">
 
         <section id="dashboard" class="tab-content block">
-            <h1 class="text-3xl font-bold text-gray-800 mb-8">Visão Geral (Hoje)</h1>
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">Visão Geral</h1>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
-                    <h3 class="text-gray-500 text-sm font-bold uppercase">Faturamento</h3>
-                    <p class="text-3xl font-bold mt-2" id="dash-faturamento">R$ 0,00</p>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 transform transition hover:-translate-y-1">
+                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Faturamento (Geral)</h3>
+                    <p class="text-3xl font-black text-gray-800 mt-2" id="dash-faturamento">R$ 0,00</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
-                    <h3 class="text-gray-500 text-sm font-bold uppercase">Pedidos Realizados</h3>
-                    <p class="text-3xl font-bold mt-2" id="dash-pedidos">0</p>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 transform transition hover:-translate-y-1">
+                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Pedidos Realizados</h3>
+                    <p class="text-3xl font-black text-gray-800 mt-2" id="dash-pedidos">0</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-yellow-500">
-                    <h3 class="text-gray-500 text-sm font-bold uppercase">Ticket Médio</h3>
-                    <p class="text-3xl font-bold mt-2" id="dash-ticket">R$ 0,00</p>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500 transform transition hover:-translate-y-1">
+                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Ticket Médio</h3>
+                    <p class="text-3xl font-black text-gray-800 mt-2" id="dash-ticket">R$ 0,00</p>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-sm">
-                <h2 class="text-xl font-bold mb-4 border-b pb-2">Últimos Pedidos</h2>
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="flex justify-between items-center mb-4 border-b pb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Últimos Pedidos Recebidos</h2>
+                    <button onclick="carregarPedidos()" class="text-gray-500 hover:text-red-600 transition"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600">
-                                <th class="p-3 border-b">ID</th>
-                                <th class="p-3 border-b">Cliente/Mesa</th>
-                                <th class="p-3 border-b">Total</th>
-                                <th class="p-3 border-b">Status</th>
+                            <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
+                                <th class="p-4 border-b font-semibold">ID</th>
+                                <th class="p-4 border-b font-semibold">Cliente/Mesa</th>
+                                <th class="p-4 border-b font-semibold">Total</th>
+                                <th class="p-4 border-b font-semibold">Status</th>
                             </tr>
                         </thead>
                         <tbody id="recent-orders-body">
@@ -94,55 +87,57 @@
         <section id="produtos" class="tab-content hidden no-print">
             <h1 class="text-3xl font-bold text-gray-800 mb-8">Gerenciar Cardápio</h1>
 
-            <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
-                <h2 class="text-xl font-bold mb-4">Adicionar Novo Produto</h2>
-                <form id="form-produto" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Adicionar Novo Produto</h2>
+                <form id="form-produto" class="grid grid-cols-1 md:grid-cols-4 gap-5 pt-2">
                     <div class="md:col-span-2">
-                        <label class="block text-sm text-gray-600 mb-1">Nome do Produto</label>
-                        <input type="text" id="prod-nome" required class="w-full border rounded p-2 focus:outline-none focus:border-red-500">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nome do Produto</label>
+                        <input type="text" id="prod-nome" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-600 mb-1">Categoria</label>
-                        <select id="prod-cat" class="w-full border rounded p-2 focus:outline-none focus:border-red-500">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Categoria</label>
+                        <select id="prod-cat" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition bg-white">
                             <option value="Hambúrgueres">Hambúrgueres</option>
                             <option value="Acompanhamentos">Acompanhamentos</option>
                             <option value="Bebidas">Bebidas</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-600 mb-1">Preço (R$)</label>
-                        <input type="number" step="0.01" id="prod-preco" required class="w-full border rounded p-2 focus:outline-none focus:border-red-500">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Preço (R$)</label>
+                        <input type="number" step="0.01" id="prod-preco" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
                     </div>
+
                     <div class="md:col-span-2">
-                        <label class="block text-sm text-gray-600 mb-1">Foto do Produto</label>
-                        <input type="file" id="prod-foto" accept="image/*" required class="w-full border rounded p-1.5 focus:outline-none focus:border-red-500 text-sm">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Foto do Produto</label>
+                        <input type="file" id="prod-foto" accept="image/*" required class="w-full border border-gray-300 rounded-lg file:mr-4 file:py-2.5 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer focus:outline-none transition">
                     </div>
+
                     <div class="md:col-span-2">
-                        <label class="block text-sm text-gray-600 mb-1">Descrição Breve</label>
-                        <input type="text" id="prod-desc" required class="w-full border rounded p-2 focus:outline-none focus:border-red-500">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Descrição Breve</label>
+                        <input type="text" id="prod-desc" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
                     </div>
-                    <div class="md:col-span-4 flex justify-end mt-2">
-                        <button type="submit" class="bg-red-600 text-white font-bold py-2 px-8 rounded hover:bg-red-700 transition">
-                            Cadastrar Produto
+                    <div class="md:col-span-4 flex justify-end mt-4 border-t pt-4">
+                        <button type="submit" id="btn-salvar-produto" class="bg-red-600 text-white font-bold py-3 px-8 rounded-lg shadow hover:bg-red-700 transition flex items-center">
+                            <i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-sm">
-                <h2 class="text-xl font-bold mb-4">Produtos Cadastrados</h2>
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Produtos Cadastrados</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600">
-                                <th class="p-3 border-b w-16">Foto</th>
-                                <th class="p-3 border-b">Nome</th>
-                                <th class="p-3 border-b">Categoria</th>
-                                <th class="p-3 border-b">Preço</th>
-                                <th class="p-3 border-b text-center">Ações</th>
+                            <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
+                                <th class="p-4 border-b font-semibold w-20">Foto</th>
+                                <th class="p-4 border-b font-semibold">Nome</th>
+                                <th class="p-4 border-b font-semibold">Categoria</th>
+                                <th class="p-4 border-b font-semibold">Preço</th>
+                                <th class="p-4 border-b font-semibold text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="produtos-body">
+                        <tbody id="produtos-body" class="divide-y divide-gray-100">
                             </tbody>
                     </table>
                 </div>
@@ -150,50 +145,55 @@
         </section>
 
         <section id="relatorios" class="tab-content hidden">
-            <div class="flex justify-between items-center mb-8 no-print">
+            <div class="flex justify-between items-center mb-8 no-print border-b pb-4">
                 <h1 class="text-3xl font-bold text-gray-800">Relatório de Vendas</h1>
-                <button onclick="window.print()" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                <button onclick="window.print()" class="bg-gray-800 text-white px-5 py-2.5 rounded-lg shadow hover:bg-gray-700 transition flex items-center font-semibold">
                     <i class="fas fa-print mr-2"></i> Imprimir Relatório
                 </button>
             </div>
 
-            <div class="hidden print:block text-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">JSC FOOD</h1>
-                <p class="text-gray-600">Relatório de Fechamento</p>
+            <div class="hidden print:flex flex-col items-center mb-8 border-b-2 border-black pb-4">
+                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JSC FOOD" class="w-24 h-24 rounded-full mb-3 grayscale">
+                <h1 class="text-3xl font-black text-black">JCS FOODS</h1>
+                <p class="text-gray-800 font-semibold text-lg mt-1">Relatório de Fechamento de Caixa</p>
+                <p class="text-sm text-gray-600 mt-1" id="data-impressao"></p>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-sm mb-8 no-print">
-                <div class="flex items-end space-x-4">
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-8 no-print">
+                <div class="flex flex-wrap items-end gap-4">
                     <div>
-                        <label class="block text-sm text-gray-600 mb-1">Data Inicial</label>
-                        <input type="date" id="filtro-inicio" class="border rounded p-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Data Inicial</label>
+                        <input type="date" id="filtro-inicio" class="border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-600 mb-1">Data Final</label>
-                        <input type="date" id="filtro-fim" class="border rounded p-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Data Final</label>
+                        <input type="date" id="filtro-fim" class="border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                    <button id="btn-filtrar" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
-                        Filtrar
+                    <button id="btn-filtrar" class="bg-blue-600 text-white font-bold px-8 py-2.5 rounded-lg shadow hover:bg-blue-700 transition flex items-center">
+                        <i class="fas fa-filter mr-2"></i> Filtrar Período
                     </button>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-sm">
-                <div class="flex justify-between mb-4">
-                    <h2 class="text-xl font-bold">Histórico de Pedidos</h2>
-                    <span class="font-bold text-green-600" id="total-relatorio">Total: R$ 0,00</span>
+            <div class="bg-white p-6 rounded-xl shadow-sm print:shadow-none print:p-0">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Histórico de Pedidos</h2>
+                    <div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg border border-green-200">
+                        <span class="text-sm uppercase tracking-wide font-semibold block">Faturamento no Período</span>
+                        <span class="text-2xl font-black block" id="total-relatorio">R$ 0,00</span>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600 border-b-2 border-gray-200">
-                                <th class="p-2 border-b">Data</th>
-                                <th class="p-2 border-b">ID</th>
-                                <th class="p-2 border-b">Itens</th>
-                                <th class="p-2 border-b text-right">Valor Total</th>
+                            <tr class="bg-gray-100 text-gray-700 border-b-2 border-gray-300 print:bg-white print:border-black uppercase tracking-wider">
+                                <th class="p-3 border-b font-semibold">Data</th>
+                                <th class="p-3 border-b font-semibold">ID</th>
+                                <th class="p-3 border-b font-semibold w-1/2">Itens</th>
+                                <th class="p-3 border-b font-semibold text-right">Valor Total</th>
                             </tr>
                         </thead>
-                        <tbody id="relatorio-body">
+                        <tbody id="relatorio-body" class="divide-y divide-gray-200">
                             </tbody>
                     </table>
                 </div>
@@ -203,48 +203,98 @@
     </main>
 
     <script>
-        // ==================== ESTADO DOS DADOS (Simulação do Banco) ====================
+        // ==================== SEGURANÇA E LOGIN ====================
+        let tokenAcesso = false;
+        let produtos = [];
+        let pedidos = [];
 
-        let produtos = [
-            { id: 1, nome: "Burger Clássico", categoria: "Hambúrgueres", preco: 24.90, desc: "Pão brioche, carne 180g, queijo", foto: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=150&q=80" },
-            { id: 2, nome: "Burger Bacon", categoria: "Hambúrgueres", preco: 29.90, desc: "Carne 180g, cheddar, muito bacon", foto: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=150&q=80" },
-            { id: 3, nome: "Batata Frita", categoria: "Acompanhamentos", preco: 12.90, desc: "Porção individual", foto: "https://images.unsplash.com/photo-1585109649139-366815a0d451?auto=format&fit=crop&w=150&q=80" }
-        ];
+        async function verificarSenhaAdmin() {
+            const senhaDigitada = prompt("🔒 Área Restrita - JSC FOOD\n\nPor favor, insira a senha de administrador:");
 
-        let pedidos = [
-            { id: "1001", data: "2023-10-25", cliente: "Mesa 04", itens: "2x Burger Clássico", total: 49.80, status: "Entregue" },
-            { id: "1002", data: "2023-10-25", cliente: "João (Delivery)", itens: "1x Burger Bacon, 1x Batata", total: 47.80, status: "Entregue" },
-            { id: "1003", data: "2023-10-24", cliente: "Mesa 01", itens: "3x Burger Clássico", total: 74.70, status: "Entregue" }
-        ];
+            if (!senhaDigitada) {
+                bloquearTela();
+                return;
+            }
 
-        // ==================== LÓGICA DE NAVEGAÇÃO ====================
-
-        const navBtns = document.querySelectorAll('.nav-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        navBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                navBtns.forEach(b => {
-                    b.classList.remove('bg-red-600');
-                    b.classList.add('hover:bg-gray-800');
+            try {
+                // Conversando com o motor em Python
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senha: senhaDigitada })
                 });
-                btn.classList.add('bg-red-600');
-                btn.classList.remove('hover:bg-gray-800');
 
-                tabContents.forEach(tab => tab.classList.add('hidden'));
-                const target = btn.getAttribute('data-target');
-                document.getElementById(target).classList.remove('hidden');
+                if (response.ok) {
+                    // Senha correta! Mostra o painel e carrega o banco de dados
+                    document.getElementById('admin-body').classList.remove('hidden');
+                    tokenAcesso = true;
+                    iniciarPainel();
+                } else {
+                    alert("❌ Senha Incorreta!");
+                    bloquearTela();
+                }
+            } catch (error) {
+                console.error("Erro ao fazer login:", error);
+                alert("Falha na comunicação com o servidor.");
+                bloquearTela();
+            }
+        }
+
+        function bloquearTela() {
+            document.documentElement.innerHTML = `
+                <head><title>Acesso Negado</title><script src="https://cdn.tailwindcss.com"><\/script></head>
+                <body class="bg-gray-900 flex flex-col items-center justify-center min-h-screen text-white">
+                    <i class="fas fa-lock text-6xl text-red-600 mb-4"></i>
+                    <h1 class="text-3xl font-bold mb-2">Acesso Negado</h1>
+                    <p class="text-gray-400 mb-6">Você precisa de autorização para ver esta página.</p>
+                    <button onclick="location.reload()" class="bg-red-600 px-6 py-2 rounded font-bold hover:bg-red-700 transition">Tentar Novamente</button>
+                </body>
+            `;
+        }
+
+        // ==================== INICIALIZAÇÃO DO PAINEL ====================
+        function iniciarPainel() {
+            document.getElementById('data-impressao').textContent = "Gerado em: " + new Date().toLocaleString('pt-BR');
+            configurarNavegacao();
+            carregarProdutos();
+            carregarPedidos();
+        }
+
+        function configurarNavegacao() {
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    navBtns.forEach(b => {
+                        b.classList.remove('bg-red-600', 'text-white', 'shadow');
+                        b.classList.add('hover:bg-gray-800', 'text-gray-300');
+                    });
+                    btn.classList.add('bg-red-600', 'text-white', 'shadow');
+                    btn.classList.remove('hover:bg-gray-800', 'text-gray-300');
+
+                    tabContents.forEach(tab => tab.classList.add('hidden'));
+                    const target = btn.getAttribute('data-target');
+                    document.getElementById(target).classList.remove('hidden');
+                });
             });
-        });
+        }
 
-        // ==================== LÓGICA DO DASHBOARD ====================
+        // ==================== LÓGICA DE PEDIDOS E DASHBOARD (API) ====================
+        async function carregarPedidos() {
+            try {
+                const res = await fetch('/api/pedidos');
+                if (res.ok) {
+                    pedidos = await res.json();
+                    atualizarDashboardUI();
+                    renderizarRelatorioUI(pedidos);
+                }
+            } catch (error) { console.error("Erro ao carregar pedidos:", error); }
+        }
 
-        function atualizarDashboard() {
-            const hoje = "2023-10-25";
-            const pedidosHoje = pedidos.filter(p => p.data === hoje);
-
-            const faturamento = pedidosHoje.reduce((sum, p) => sum + p.total, 0);
-            const totalPedidos = pedidosHoje.length;
+        function atualizarDashboardUI() {
+            const faturamento = pedidos.reduce((sum, p) => sum + parseFloat(p.total), 0);
+            const totalPedidos = pedidos.length;
             const ticketMedio = totalPedidos > 0 ? (faturamento / totalPedidos) : 0;
 
             document.getElementById('dash-faturamento').textContent = `R$ ${faturamento.toFixed(2).replace('.', ',')}`;
@@ -253,36 +303,97 @@
 
             const tbody = document.getElementById('recent-orders-body');
             tbody.innerHTML = '';
-            pedidosHoje.forEach(p => {
+            
+            // Pega os últimos pedidos para a tela inicial
+            pedidos.slice(0, 10).forEach(p => {
+                // Lógica de cores baseada no status para ficar bonito
+                let corStatus = "bg-yellow-100 text-yellow-800";
+                if(p.status === 'Entregue') corStatus = "bg-green-100 text-green-800";
+                if(p.status === 'Cancelado') corStatus = "bg-red-100 text-red-800";
+                if(p.status === 'Preparando') corStatus = "bg-blue-100 text-blue-800";
+
                 tbody.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3 font-bold text-gray-700">#${p.id}</td>
-                        <td class="p-3">${p.cliente}</td>
-                        <td class="p-3">R$ ${p.total.toFixed(2).replace('.', ',')}</td>
-                        <td class="p-3"><span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">${p.status}</span></td>
+                    <tr class="hover:bg-gray-50 transition border-b">
+                        <td class="p-4 font-bold text-gray-800">#${p.id_pedido}</td>
+                        <td class="p-4 text-gray-600">
+                            <span class="font-bold block">${p.cliente_nome}</span>
+                            <span class="text-xs text-gray-400"><i class="fas fa-motorcycle"></i> ${p.endereco.substring(0, 25)}...</span>
+                        </td>
+                        <td class="p-4 font-black text-gray-900">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
+                        <td class="p-4">
+                            <select onchange="atualizarStatusPedido('${p.id_pedido}', this.value)" class="${corStatus} text-xs font-bold px-2 py-1 rounded outline-none cursor-pointer border border-transparent hover:border-gray-300 transition">
+                                <option value="Aguardando Pagamento" ${p.status === 'Aguardando Pagamento' ? 'selected' : ''}>Aguardando Pagamento</option>
+                                <option value="Aprovado / Preparando" ${p.status === 'Aprovado / Preparando' ? 'selected' : ''}>Aprovado / Preparando</option>
+                                <option value="Saiu para Entrega" ${p.status === 'Saiu para Entrega' ? 'selected' : ''}>Saiu para Entrega</option>
+                                <option value="Entregue" ${p.status === 'Entregue' ? 'selected' : ''}>Entregue</option>
+                                <option value="Cancelado" ${p.status === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                        </td>
                     </tr>
                 `;
             });
         }
 
-        // ==================== LÓGICA DE PRODUTOS ====================
+        // Nova função para enviar a mudança de status pro Banco de Dados
+        async function atualizarStatusPedido(idPedido, novoStatus) {
+            try {
+                // 1. Envia a ordem pro Python (Vercel)
+                const res = await fetch(`/api/pedidos/${idPedido}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: novoStatus })
+                });
 
-        function renderizarProdutos() {
+                if (res.ok) {
+                    // 2. Atualiza a lista na memória do navegador
+                    const pedidoAAlterar = pedidos.find(p => p.id_pedido == idPedido);
+                    if (pedidoAAlterar) {
+                        pedidoAAlterar.status = novoStatus;
+                    }
+                    
+                    // 3. Atualiza as telas para refletirem a nova cor
+                    atualizarDashboardUI();
+                    
+                    // Toast/Aviso visual opcional
+                    console.log(`Pedido #${idPedido} atualizado para: ${novoStatus}`);
+                } else {
+                    alert("Erro ao atualizar o status no banco de dados.");
+                    carregarPedidos(); // Puxa do banco de novo se der erro para voltar ao original
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+                alert("Falha de conexão ao tentar atualizar o pedido.");
+            }
+        }
+
+        // ==================== LÓGICA DE PRODUTOS (API) ====================
+        async function carregarProdutos() {
+            try {
+                const res = await fetch('/api/produtos');
+                if (res.ok) {
+                    produtos = await res.json();
+                    renderizarProdutosUI();
+                }
+            } catch (error) { console.error("Erro ao carregar produtos:", error); }
+        }
+
+        function renderizarProdutosUI() {
             const tbody = document.getElementById('produtos-body');
             tbody.innerHTML = '';
             produtos.forEach(prod => {
-                // Adicionada a tag <img> para mostrar a foto na tabela
                 tbody.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3">
-                            <img src="${prod.foto}" alt="${prod.nome}" class="w-12 h-12 object-cover rounded-md shadow-sm">
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <div class="w-14 h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-100">
+                                <img src="${prod.foto}" alt="${prod.nome}" class="w-full h-full object-cover">
+                            </div>
                         </td>
-                        <td class="p-3 font-bold">${prod.nome}</td>
-                        <td class="p-3"><span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">${prod.categoria}</span></td>
-                        <td class="p-3">R$ ${prod.preco.toFixed(2).replace('.', ',')}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="excluirProduto(${prod.id})" class="text-red-500 hover:text-red-700 transition">
-                                <i class="fas fa-trash"></i>
+                        <td class="p-4 font-bold text-gray-800 text-base">${prod.nome}</td>
+                        <td class="p-4"><span class="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">${prod.categoria}</span></td>
+                        <td class="p-4 font-semibold text-gray-800">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="excluirProduto(${prod.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Excluir">
+                                <i class="fas fa-trash-alt text-lg"></i>
                             </button>
                         </td>
                     </tr>
@@ -292,66 +403,97 @@
 
         document.getElementById('form-produto').addEventListener('submit', function(e) {
             e.preventDefault();
+            const btnSalvar = document.getElementById('btn-salvar-produto');
+            btnSalvar.disabled = true;
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...';
+
             const nome = document.getElementById('prod-nome').value;
             const cat = document.getElementById('prod-cat').value;
             const preco = parseFloat(document.getElementById('prod-preco').value);
             const desc = document.getElementById('prod-desc').value;
             const inputFoto = document.getElementById('prod-foto');
 
-            // Verifica se uma foto foi selecionada
             if (inputFoto.files && inputFoto.files[0]) {
                 const leitor = new FileReader();
-
-                // Quando o arquivo for lido, ele o converte para uma URL Base64 para exibir na tela
-                leitor.onload = function(eventoLeitura) {
+                leitor.onload = async function(eventoLeitura) {
                     const fotoUrl = eventoLeitura.target.result;
 
-                    produtos.push({
-                        id: Date.now(),
+                    const novoProduto = {
                         nome: nome,
                         categoria: cat,
                         preco: preco,
-                        desc: desc,
-                        foto: fotoUrl // Salva a URL convertida no objeto
-                    });
+                        foto: fotoUrl,
+                        descricao: desc
+                    };
 
-                    document.getElementById('form-produto').reset();
-                    renderizarProdutos();
-                    alert("Produto cadastrado com sucesso!");
+                    try {
+                        const res = await fetch('/api/produtos', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(novoProduto)
+                        });
+
+                        if (res.ok) {
+                            document.getElementById('form-produto').reset();
+                            carregarProdutos(); // Recarrega a lista do banco
+                            alert("Produto cadastrado com sucesso!");
+                        } else {
+                            alert("Erro ao cadastrar no banco de dados.");
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        alert("Falha na comunicação com a API.");
+                    } finally {
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
+                    }
                 };
-
-                // Inicia a leitura da imagem
                 leitor.readAsDataURL(inputFoto.files[0]);
             }
         });
 
-        window.excluirProduto = function(id) {
-            if(confirm("Tem certeza que deseja excluir este produto?")) {
-                produtos = produtos.filter(p => p.id !== id);
-                renderizarProdutos();
+        window.excluirProduto = async function(id) {
+            if(confirm("Tem certeza que deseja excluir este produto do cardápio?")) {
+                try {
+                    const res = await fetch(`/api/produtos/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        carregarProdutos(); // Atualiza a tela puxando do banco
+                    } else {
+                        alert("Erro ao excluir o produto.");
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             }
         }
 
         // ==================== LÓGICA DE RELATÓRIOS ====================
-
-        function renderizarRelatorio(listaPedidos) {
+        function renderizarRelatorioUI(listaPedidos) {
             const tbody = document.getElementById('relatorio-body');
             tbody.innerHTML = '';
             let faturamentoTotal = 0;
 
             listaPedidos.forEach(p => {
-                faturamentoTotal += p.total;
+                faturamentoTotal += parseFloat(p.total);
+
+                // Formatar a data que vem do banco
+                let dataFormatada = "N/A";
+                if (p.data_criacao) {
+                    const dataObj = new Date(p.data_criacao);
+                    dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                }
+
                 tbody.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-2">${p.data.split('-').reverse().join('/')}</td>
-                        <td class="p-2 text-gray-500">#${p.id}</td>
-                        <td class="p-2">${p.itens}</td>
-                        <td class="p-2 text-right font-bold">R$ ${p.total.toFixed(2).replace('.', ',')}</td>
+                    <tr class="hover:bg-gray-50 transition print:hover:bg-transparent">
+                        <td class="p-3 text-gray-700">${dataFormatada}</td>
+                        <td class="p-3 font-mono text-gray-500 text-xs">#${p.id_pedido}</td>
+                        <td class="p-3 text-gray-800">${p.itens}</td>
+                        <td class="p-3 text-right font-bold text-gray-900">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
                     </tr>
                 `;
             });
 
-            document.getElementById('total-relatorio').textContent = `Faturamento no Período: R$ ${faturamentoTotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('total-relatorio').textContent = `R$ ${faturamentoTotal.toFixed(2).replace('.', ',')}`;
         }
 
         document.getElementById('btn-filtrar').addEventListener('click', () => {
@@ -361,19 +503,20 @@
             let pedidosFiltrados = pedidos;
 
             if (inicio) {
-                pedidosFiltrados = pedidosFiltrados.filter(p => p.data >= inicio);
+                const dataInicio = new Date(inicio).getTime();
+                pedidosFiltrados = pedidosFiltrados.filter(p => new Date(p.data_criacao).getTime() >= dataInicio);
             }
             if (fim) {
-                pedidosFiltrados = pedidosFiltrados.filter(p => p.data <= fim);
+                // Adiciona 1 dia (86400000ms) para incluir o dia final inteiro até as 23:59
+                const dataFim = new Date(fim).getTime() + 86400000;
+                pedidosFiltrados = pedidosFiltrados.filter(p => new Date(p.data_criacao).getTime() <= dataFim);
             }
 
-            renderizarRelatorio(pedidosFiltrados);
+            renderizarRelatorioUI(pedidosFiltrados);
         });
 
-        // Inicialização
-        atualizarDashboard();
-        renderizarProdutos();
-        renderizarRelatorio(pedidos);
+        // Chama a proteção de segurança imediatamente
+        verificarSenhaAdmin();
     </script>
 </body>
 </html>
