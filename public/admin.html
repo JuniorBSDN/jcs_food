@@ -630,19 +630,31 @@
             let faturamentoTotal = 0;
 
             listaPedidos.forEach(p => {
-                faturamentoTotal += parseFloat(p.total);
+                // Só soma no faturamento se o pedido NÃO estiver Cancelado
+                if (p.status !== 'Cancelado') {
+                    faturamentoTotal += parseFloat(p.total);
+                }
+
                 let dataFormatada = "N/A";
                 if (p.data_criacao) {
                     const dataObj = new Date(p.data_criacao);
                     dataFormatada = dataObj.toLocaleDateString('pt-BR');
                 }
 
+                // Cria uma etiqueta visual caso o pedido esteja cancelado no relatório
+                let avisoCancelado = '';
+                let estiloValor = 'text-gray-900';
+                if (p.status === 'Cancelado') {
+                    avisoCancelado = `<span class="bg-red-100 text-red-800 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold uppercase">Cancelado</span>`;
+                    estiloValor = 'text-red-400 line-through'; // Risca o valor para mostrar que não foi somado
+                }
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition print:hover:bg-transparent">
                         <td class="p-3 text-gray-700 whitespace-nowrap">${dataFormatada}</td>
-                        <td class="p-3 font-mono text-gray-500 text-xs">#${p.id_pedido}</td>
+                        <td class="p-3 font-mono text-gray-500 text-xs">#${p.id_pedido} ${avisoCancelado}</td>
                         <td class="p-3 text-gray-800 text-xs min-w-[200px]">${p.itens}</td>
-                        <td class="p-3 text-right font-bold text-gray-900 whitespace-nowrap">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
+                        <td class="p-3 text-right font-bold ${estiloValor} whitespace-nowrap">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
                     </tr>
                 `;
             });
