@@ -554,6 +554,9 @@
             btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
             btnSalvar.classList.add('bg-red-600', 'hover:bg-red-700');
             btnSalvar.classList.remove('bg-yellow-500', 'hover:bg-yellow-600', 'text-black');
+            
+            // ESSA É A LINHA MÁGICA QUE DESTRAVA O BOTÃO PARA O PRÓXIMO CADASTRO!
+            btnSalvar.disabled = false; 
         }
 
         document.getElementById('form-produto').addEventListener('submit', function(e) {
@@ -600,16 +603,18 @@
 
                 if (res.ok) {
                     alert(produtoEditandoId ? "Produto atualizado!" : "Produto cadastrado!");
-                    cancelarEdicao(); 
-                    carregarProdutos(); 
+                    cancelarEdicao(); // Isso vai limpar o form e DESTRAVAR o botão
+                    carregarProdutos(); // Atualiza a tabela na mesma hora
                 } else {
                     alert("Erro ao salvar no banco.");
-                    document.getElementById('btn-salvar-produto').disabled = false;
+                    document.getElementById('btn-salvar-produto').disabled = false; // Destrava se der erro
+                    document.getElementById('btn-salvar-produto').innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Tentar Novamente';
                 }
             } catch (error) {
                 console.error(error);
                 alert("Falha na comunicação.");
-                document.getElementById('btn-salvar-produto').disabled = false;
+                document.getElementById('btn-salvar-produto').disabled = false; // Destrava se der erro
+                document.getElementById('btn-salvar-produto').innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Tentar Novamente';
             }
         }
 
