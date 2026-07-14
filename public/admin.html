@@ -401,14 +401,11 @@
             });
         }
 
-        // Substitua 'COLE_SUA_CHAVE_AQUI' pela chave que você pegou no site do ImgBB
-        const IMGBB_API_KEY = "COLE_SUA_CHAVE_AQUI";
-
-        document.getElementById('form-produto').addEventListener('submit', async function(e) {
+        document.getElementById('form-produto').addEventListener('submit', function(e) {
             e.preventDefault();
             const btnSalvar = document.getElementById('btn-salvar-produto');
             btnSalvar.disabled = true;
-            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Enviando Foto...';
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...';
 
             const nome = document.getElementById('prod-nome').value;
             const cat = document.getElementById('prod-cat').value;
@@ -417,37 +414,19 @@
             const inputFoto = document.getElementById('prod-foto');
 
             if (inputFoto.files && inputFoto.files[0]) {
-                const fotoArquivo = inputFoto.files[0];
-                
-                // Prepara a foto para enviar ao ImgBB
-                const formData = new FormData();
-                formData.append('image', fotoArquivo);
+                const leitor = new FileReader();
+                leitor.onload = async function(eventoLeitura) {
+                    const fotoUrl = eventoLeitura.target.result;
 
-                try {
-                    // 1. Faz o upload da foto pesada para o servidor de imagens
-                    const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    const uploadData = await uploadRes.json();
-                    
-                    if (uploadData.success) {
-                        // A mágica: Pegamos APENAS o link da imagem já hospedada!
-                        const fotoUrlLink = uploadData.data.url; 
+                    const novoProduto = {
+                        nome: nome,
+                        categoria: cat,
+                        preco: preco,
+                        foto: fotoUrl,
+                        descricao: desc
+                    };
 
-                        btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Salvando no Banco...';
-                        
-                        // 2. Monta o pacote levíssimo para o nosso banco de dados
-                        const novoProduto = {
-                            nome: nome,
-                            categoria: cat,
-                            preco: preco,
-                            foto: fotoUrlLink, 
-                            descricao: desc
-                        };
-
-                        // 3. Envia para a nossa API Python na Vercel
+                    try {
                         const res = await fetch('/api/produtos', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -456,21 +435,20 @@
 
                         if (res.ok) {
                             document.getElementById('form-produto').reset();
-                            carregarProdutos(); 
+                            carregarProdutos(); // Recarrega a lista do banco
                             alert("Produto cadastrado com sucesso!");
                         } else {
-                            alert("Erro ao cadastrar no banco de dados Neon.");
+                            alert("Erro ao cadastrar no banco de dados.");
                         }
-                    } else {
-                        alert("Erro ao fazer o upload da imagem para o ImgBB.");
+                    } catch (error) {
+                        console.error(error);
+                        alert("Falha na comunicação com a API.");
+                    } finally {
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
                     }
-                } catch (error) {
-                    console.error(error);
-                    alert("Falha na comunicação com a internet.");
-                } finally {
-                    btnSalvar.disabled = false;
-                    btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
-                }
+                };
+                leitor.readAsDataURL(inputFoto.files[0]);
             }
         });
 
