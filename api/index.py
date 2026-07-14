@@ -42,6 +42,9 @@ class Pedido(BaseModel):
     total: float
     status: str
 
+class StatusUpdate(BaseModel):
+    status: str
+
 # ==================== ROTAS DE SEGURANÇA ====================
 @app.post("/api/login")
 def validar_login(req: LoginRequest):
@@ -108,3 +111,13 @@ def listar_pedidos():
     cursor.close()
     conn.close()
     return pedidos
+@app.put("/api/pedidos/{pedido_id}/status")
+def atualizar_status_pedido(pedido_id: int, req: StatusUpdate):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Atualiza o status do pedido específico no banco Neon
+    cursor.execute("UPDATE pedidos SET status = %s WHERE id_pedido = %s;", (req.status, pedido_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"mensagem": "Status atualizado com sucesso"}
