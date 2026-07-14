@@ -377,8 +377,12 @@
         }
 
         function atualizarDashboardUI() {
-            const faturamento = pedidos.reduce((sum, p) => sum + parseFloat(p.total), 0);
-            const totalPedidos = pedidos.length;
+            // 1. Filtra os pedidos válidos (Tira os Cancelados da matemática)
+            const pedidosValidos = pedidos.filter(p => p.status !== 'Cancelado');
+
+            // 2. Faz as contas APENAS com os pedidos válidos
+            const faturamento = pedidosValidos.reduce((sum, p) => sum + parseFloat(p.total), 0);
+            const totalPedidos = pedidosValidos.length;
             const ticketMedio = totalPedidos > 0 ? (faturamento / totalPedidos) : 0;
 
             document.getElementById('dash-faturamento').textContent = `R$ ${faturamento.toFixed(2).replace('.', ',')}`;
@@ -388,6 +392,7 @@
             const tbody = document.getElementById('recent-orders-body');
             tbody.innerHTML = '';
             
+            // 3. Mantém a lista mostrando todos os últimos 10 pedidos (incluindo cancelados para registro)
             pedidos.slice(0, 10).forEach(p => {
                 let corStatus = "bg-yellow-100 text-yellow-800";
                 if(p.status === 'Entregue') corStatus = "bg-green-100 text-green-800";
@@ -401,7 +406,7 @@
                             <span class="font-bold block">${p.cliente_nome}</span>
                             <span class="text-[10px] md:text-xs text-gray-400"><i class="fas fa-motorcycle"></i> ${p.endereco.substring(0, 25)}...</span>
                         </td>
-                        <td class="p-3 md:p-4 font-black text-gray-900">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
+                        <td class="p-3 md:p-4 font-black ${p.status === 'Cancelado' ? 'text-red-400 line-through' : 'text-gray-900'}">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
                         <td class="p-3 md:p-4">
                             <select onchange="atualizarStatusPedido('${p.id_pedido}', this.value)" class="${corStatus} text-[10px] md:text-xs font-bold px-2 py-1.5 rounded outline-none cursor-pointer border border-transparent hover:border-gray-300 transition w-full md:w-auto">
                                 <option value="Aguardando Pagamento" ${p.status === 'Aguardando Pagamento' ? 'selected' : ''}>Aguardando Pagamento</option>
@@ -415,7 +420,6 @@
                 `;
             });
         }
-
         async function atualizarStatusPedido(idPedido, novoStatus) {
             try {
                 const res = await fetch(`/api/pedidos/${idPedido}/status`, {
