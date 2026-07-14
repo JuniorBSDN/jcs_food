@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JCS-FOODS - Delivery</title>
+    <title>JSC FOOD - Delivery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -28,11 +28,12 @@
 </head>
 <body class="bg-gray-50 font-sans pb-20 md:pb-0">
 
+    <!-- Header com Logo e Cores Originais JSC FOOD -->
     <header class="bg-gray-900 text-white shadow-lg sticky top-0 z-40 border-b-4 border-red-600">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JCS FOODS" class="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm">
-                <h1 class="text-2xl font-black tracking-wider uppercase">JCS FOODS</h1>
+                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JSC FOOD" class="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm">
+                <h1 class="text-2xl font-black tracking-wider uppercase">JSC FOOD</h1>
             </div>
 
             <div class="flex items-center">
@@ -44,8 +45,10 @@
         </div>
     </header>
 
+    <!-- Menu Section -->
     <section id="menu" class="py-10 bg-gray-50">
         <div class="container mx-auto px-4">
+            <!-- Filtros de Categoria (Estilo Original) -->
             <div class="flex justify-center mb-8 overflow-x-auto pb-2 scrollbar-hide">
                 <div class="flex space-x-2 bg-white p-1 rounded-full shadow-sm whitespace-nowrap border border-gray-200">
                     <button class="category-btn px-6 py-2 rounded-full bg-red-600 text-white font-bold transition" data-category="all">Todos</button>
@@ -55,7 +58,9 @@
                 </div>
             </div>
 
+            <!-- Grade de Produtos -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="menu-items">
+                <!-- Preenchido via JS dinamicamente pelo Banco de Dados -->
                 <div class="col-span-full text-center py-10">
                     <i class="fas fa-spinner fa-spin text-4xl text-red-600 mb-4"></i>
                     <p class="text-gray-500 font-bold">Carregando cardápio fresquinho...</p>
@@ -64,25 +69,40 @@
         </div>
     </section>
 
+    <!-- ================= MODAL DE IMAGEM AMPLIADA ================= -->
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[60] hidden flex justify-center items-center backdrop-blur-sm transition-opacity">
+        <button onclick="closeImageModal()" class="absolute top-6 right-6 text-white hover:text-red-500 text-4xl transition z-10">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="modal-image-src" src="" alt="Imagem Ampliada" class="max-w-[90%] max-h-[90vh] object-contain rounded-xl shadow-2xl">
+    </div>
+
+    <!-- ================= MODAL DA SACOLA ================= -->
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
 
+        <!-- Header da Sacola -->
         <div class="p-5 bg-gray-900 text-white flex justify-between items-center shadow-md">
-            <h3 class="text-xl font-bold flex items-center"><i class="fas fa-shopping-bag mr-2 text-red-500"></i> Seu pedido</h3>
+            <h3 class="text-xl font-bold flex items-center"><i class="fas fa-shopping-bag mr-2 text-red-500"></i> Sua Sacola</h3>
             <button id="close-cart" class="w-8 h-8 flex items-center justify-center bg-gray-800 rounded-full text-gray-300 hover:text-white transition">
                 <i class="fas fa-times"></i>
             </button>
         </div>
 
+        <!-- Área Rolável (Itens + Informações de Envio) -->
         <div class="flex-1 overflow-y-auto p-5 scrollbar-hide bg-gray-50">
 
+            <!-- Mensagem de Carrinho Vazio -->
             <div class="text-center py-12 text-gray-400 block" id="empty-cart-message">
                 <i class="fas fa-shopping-bag text-6xl mb-4 opacity-50"></i>
-                <p class="text-lg font-medium">Não possui Pedidos</p>
+                <p class="text-lg font-medium">Sua sacola está vazia</p>
             </div>
 
+            <!-- Container para os Itens do Carrinho -->
             <div id="cart-items" class="space-y-4 mb-6">
-                </div>
+                <!-- Preenchido via JS -->
+            </div>
 
+            <!-- Formulário de Informações do Cliente -->
             <div id="checkout-form" class="hidden bg-white p-5 rounded-xl shadow-sm border border-gray-200">
                 <h4 class="font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
                     <i class="fas fa-motorcycle text-red-600 mr-2"></i> Informações de Envio
@@ -93,7 +113,7 @@
                     <input type="tel" id="cli-tel" placeholder="WhatsApp para contato" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
                     <input type="text" id="cli-end" placeholder="Endereço de Entrega (Rua, Bairro, Número)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
                     <input type="text" id="cli-ref" placeholder="Ponto de Referência (Obrigatório)*" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-yellow-50 placeholder-gray-600 transition" required>
-
+                    
                     <select id="cli-pag" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none font-semibold text-gray-700 transition" required>
                         <option value="">Formas de Pagamento...</option>
                         <option value="PIX">PIX</option>
@@ -105,11 +125,11 @@
             </div>
         </div>
 
+        <!-- Rodapé Fixo (Total + Botão WhatsApp) -->
         <div class="p-5 border-t border-gray-200 bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
             <div id="taxa-aviso" class="flex justify-between items-center text-sm text-gray-500 mb-2 hidden">
                 <span>Taxa de entrega:</span>
-                <span>cidade: GRÁTIS</span>
-                <span>Passando o Manto: R$ 5,00</span>
+                <span>R$ 5,00</span>
             </div>
             <div class="flex justify-between items-center mb-4">
                 <span class="text-gray-800 font-bold text-lg">Total do Pedido:</span>
@@ -122,8 +142,10 @@
         </div>
     </div>
 
+    <!-- Backdrop escuro -->
     <div id="backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden backdrop-blur-sm transition-opacity"></div>
 
+    <!-- Notificação de Sucesso -->
     <div id="success-notification" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center translate-y-24 transition-transform duration-300 z-50 border border-gray-700">
         <i class="fas fa-check text-green-400 mr-2 text-xl"></i>
         <span class="font-semibold">Adicionado à sacola!</span>
@@ -134,7 +156,6 @@
         const NUMERO_WHATSAPP = "5591983252639";
         const TAXA_ENTREGA = 5.00;
 
-        // Agora o menuItems começa vazio e será preenchido pelo Banco de Dados!
         let menuItems = [];
         let cart = [];
 
@@ -155,22 +176,37 @@
 
         // ================= INICIALIZAÇÃO =================
         function init() {
-            carregarProdutos(); // Chama a função que busca na API
+            carregarProdutos();
             setupEventListeners();
         }
+
+        // ================= LÓGICA DO MODAL DE IMAGEM =================
+        function openImageModal(imgSrc) {
+            const modal = document.getElementById('image-modal');
+            document.getElementById('modal-image-src').src = imgSrc;
+            modal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+        }
+
+        // Fecha o modal se clicar fora da imagem
+        document.getElementById('image-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
 
         // ================= BUSCAR DADOS NA API (PYTHON) =================
         async function carregarProdutos() {
             try {
-                // A Vercel direciona essa chamada para o seu arquivo api/index.py
                 const response = await fetch('/api/produtos');
                 if (!response.ok) throw new Error('Erro na resposta do servidor');
-
+                
                 const produtosDB = await response.json();
-
-                // Mapeia os dados do Banco (PostgreSQL) para o formato do Frontend
+                
                 menuItems = produtosDB.map(p => {
-                    // Traduz as categorias do banco para as tags do menu
                     let catTag = 'burgers';
                     if(p.categoria === 'Acompanhamentos') catTag = 'sides';
                     if(p.categoria === 'Bebidas') catTag = 'drinks';
@@ -209,9 +245,14 @@
             filteredItems.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'menu-item bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col transition duration-300';
+                
+                // AJUSTE AQUI: object-contain, bg-gray-100, classe group e onclick para abrir o modal de imagem
                 div.innerHTML = `
-                    <div class="relative h-48 overflow-hidden">
-                        <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover">
+                    <div class="relative h-48 overflow-hidden bg-gray-100 cursor-pointer group" onclick="openImageModal('${item.img}')">
+                        <img src="${item.img}" alt="${item.name}" class="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition duration-300 flex items-center justify-center">
+                            <i class="fas fa-search-plus text-white opacity-0 group-hover:opacity-100 text-3xl drop-shadow-md transition"></i>
+                        </div>
                     </div>
                     <div class="p-5 flex-1 flex flex-col">
                         <h3 class="text-xl font-bold text-gray-800 mb-1">${item.name}</h3>
@@ -291,7 +332,7 @@
                 cart.forEach(item => {
                     cartItemsContainer.innerHTML += `
                         <div class="cart-item-enter flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100">
-                            <img src="${item.img}" class="w-16 h-16 object-cover rounded-lg mr-4 border border-gray-200">
+                            <img src="${item.img}" class="w-16 h-16 object-contain bg-gray-50 rounded-lg mr-4 border border-gray-200 p-1">
                             <div class="flex-grow">
                                 <h4 class="font-bold text-gray-800 text-sm mb-1">${item.name}</h4>
                                 <span class="font-semibold text-gray-500 text-sm">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
@@ -369,7 +410,7 @@
                         forma_pagamento: pag,
                         itens: itensTexto.replace(/\n/g, ', '), // Formata os itens em uma linha
                         total: totalFinal,
-                        status: "Enviado WhatsApp"
+                        status: "Aguardando Pagamento"
                     })
                 });
             } catch (e) {
