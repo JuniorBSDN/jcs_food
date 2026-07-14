@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSC FOOD - Delivery</title>
+    <title>JCS-FOODS - Delivery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -31,8 +31,8 @@
     <header class="bg-gray-900 text-white shadow-lg sticky top-0 z-40 border-b-4 border-red-600">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JSC FOOD" class="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm">
-                <h1 class="text-2xl font-black tracking-wider uppercase">JSC FOOD</h1>
+                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JCS FOODS" class="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm">
+                <h1 class="text-2xl font-black tracking-wider uppercase">JCS FOODS</h1>
             </div>
 
             <div class="flex items-center">
@@ -67,7 +67,7 @@
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
 
         <div class="p-5 bg-gray-900 text-white flex justify-between items-center shadow-md">
-            <h3 class="text-xl font-bold flex items-center"><i class="fas fa-shopping-bag mr-2 text-red-500"></i> Sua Sacola</h3>
+            <h3 class="text-xl font-bold flex items-center"><i class="fas fa-shopping-bag mr-2 text-red-500"></i> Seu pedido</h3>
             <button id="close-cart" class="w-8 h-8 flex items-center justify-center bg-gray-800 rounded-full text-gray-300 hover:text-white transition">
                 <i class="fas fa-times"></i>
             </button>
@@ -77,7 +77,7 @@
 
             <div class="text-center py-12 text-gray-400 block" id="empty-cart-message">
                 <i class="fas fa-shopping-bag text-6xl mb-4 opacity-50"></i>
-                <p class="text-lg font-medium">Sua sacola está vazia</p>
+                <p class="text-lg font-medium">Não possui Pedidos</p>
             </div>
 
             <div id="cart-items" class="space-y-4 mb-6">
@@ -108,7 +108,8 @@
         <div class="p-5 border-t border-gray-200 bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
             <div id="taxa-aviso" class="flex justify-between items-center text-sm text-gray-500 mb-2 hidden">
                 <span>Taxa de entrega:</span>
-                <span>R$ 5,00</span>
+                <span>cidade: GRÁTIS</span>
+                <span>Passando o Manto: R$ 5,00</span>
             </div>
             <div class="flex justify-between items-center mb-4">
                 <span class="text-gray-800 font-bold text-lg">Total do Pedido:</span>
