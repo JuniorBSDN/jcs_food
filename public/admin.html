@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSC FOOD - Painel Administrativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos para impressão: esconde menus e mostra apenas o conteúdo principal */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: white;
+            }
+            .print-container {
+                padding: 0;
+                margin: 0;
+                width: 100%;
+            }
+            .shadow-sm {
+                box-shadow: none !important;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans flex min-h-screen">
+
+    <aside class="w-64 bg-gray-900 text-white p-4 no-print flex flex-col shadow-2xl z-10">
+
+        <div class="flex flex-col items-center justify-center mt-6 mb-10 border-b border-gray-700 pb-6">
+            <div class="w-28 h-28 bg-white rounded-full p-1 shadow-lg mb-4 flex items-center justify-center overflow-hidden">
+                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="Logotipo JSC FOOD" class="w-full h-full object-cover rounded-full">
+            </div>
+            <h2 class="text-xl font-bold text-white tracking-wider">ADMINISTRAÇÃO</h2>
+        </div>
+
+        <nav class="space-y-3 flex-grow">
+            <button class="nav-btn w-full text-left py-3 px-4 bg-red-600 font-medium rounded-lg shadow transition flex items-center" data-target="dashboard">
+                <i class="fas fa-chart-line w-6 text-center mr-2"></i> Dashboard
+            </button>
+            <button class="nav-btn w-full text-left py-3 px-4 hover:bg-gray-800 text-gray-300 hover:text-white font-medium rounded-lg transition flex items-center" data-target="produtos">
+                <i class="fas fa-box-open w-6 text-center mr-2"></i> Produtos
+            </button>
+            <button class="nav-btn w-full text-left py-3 px-4 hover:bg-gray-800 text-gray-300 hover:text-white font-medium rounded-lg transition flex items-center" data-target="relatorios">
+                <i class="fas fa-file-invoice-dollar w-6 text-center mr-2"></i> Relatórios
+            </button>
+        </nav>
+
+        <div class="border-t border-gray-800 pt-4 text-xs text-gray-500 text-center font-semibold">
+            &copy; 2026 JSC FOOD<br>V 1.0 - Delivery System
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8 print-container overflow-y-auto">
+
+        <section id="dashboard" class="tab-content block">
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">Visão Geral (Hoje)</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 transform transition hover:-translate-y-1">
+                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Faturamento</h3>
+                    <p class="text-3xl font-black text-gray-800 mt-2" id="dash-faturamento">R$ 0,00</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 transform transition hover:-translate-y-1">
+                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Pedidos Realizados</h3>
+                    <p class="text-3xl font-black text-gray-800 mt-2" id="dash-pedidos">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500 transform transition hover:-translate-y-1">
+                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Ticket Médio</h3>
+                    <p class="text-3xl font-black text-gray-800 mt-2" id="dash-ticket">R$ 0,00</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-4">Últimos Pedidos Recebidos</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
+                                <th class="p-4 border-b font-semibold">ID</th>
+                                <th class="p-4 border-b font-semibold">Cliente/Mesa</th>
+                                <th class="p-4 border-b font-semibold">Total</th>
+                                <th class="p-4 border-b font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-orders-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="produtos" class="tab-content hidden no-print">
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">Gerenciar Cardápio</h1>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Adicionar Novo Produto</h2>
+                <form id="form-produto" class="grid grid-cols-1 md:grid-cols-4 gap-5 pt-2">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nome do Produto</label>
+                        <input type="text" id="prod-nome" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Categoria</label>
+                        <select id="prod-cat" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition bg-white">
+                            <option value="Hambúrgueres">Hambúrgueres</option>
+                            <option value="Acompanhamentos">Acompanhamentos</option>
+                            <option value="Bebidas">Bebidas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Preço (R$)</label>
+                        <input type="number" step="0.01" id="prod-preco" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Foto do Produto</label>
+                        <input type="file" id="prod-foto" accept="image/*" required class="w-full border border-gray-300 rounded-lg file:mr-4 file:py-2.5 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer focus:outline-none transition">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Descrição Breve</label>
+                        <input type="text" id="prod-desc" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+                    </div>
+                    <div class="md:col-span-4 flex justify-end mt-4 border-t pt-4">
+                        <button type="submit" class="bg-red-600 text-white font-bold py-3 px-8 rounded-lg shadow hover:bg-red-700 transition flex items-center">
+                            <i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Produtos Cadastrados</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
+                                <th class="p-4 border-b font-semibold w-20">Foto</th>
+                                <th class="p-4 border-b font-semibold">Nome</th>
+                                <th class="p-4 border-b font-semibold">Categoria</th>
+                                <th class="p-4 border-b font-semibold">Preço</th>
+                                <th class="p-4 border-b font-semibold text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="produtos-body" class="divide-y divide-gray-100">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="relatorios" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-8 no-print border-b pb-4">
+                <h1 class="text-3xl font-bold text-gray-800">Relatório de Vendas</h1>
+                <button onclick="window.print()" class="bg-gray-800 text-white px-5 py-2.5 rounded-lg shadow hover:bg-gray-700 transition flex items-center font-semibold">
+                    <i class="fas fa-print mr-2"></i> Imprimir Relatório
+                </button>
+            </div>
+
+            <div class="hidden print:flex flex-col items-center mb-8 border-b-2 border-black pb-4">
+                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JSC FOOD" class="w-24 h-24 rounded-full mb-3 grayscale">
+                <h1 class="text-3xl font-black text-black">JSC FOOD</h1>
+                <p class="text-gray-800 font-semibold text-lg mt-1">Relatório de Fechamento de Caixa</p>
+                <p class="text-sm text-gray-600 mt-1" id="data-impressao"></p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-8 no-print">
+                <div class="flex flex-wrap items-end gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Data Inicial</label>
+                        <input type="date" id="filtro-inicio" class="border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Data Final</label>
+                        <input type="date" id="filtro-fim" class="border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button id="btn-filtrar" class="bg-blue-600 text-white font-bold px-8 py-2.5 rounded-lg shadow hover:bg-blue-700 transition flex items-center">
+                        <i class="fas fa-filter mr-2"></i> Filtrar Período
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm print:shadow-none print:p-0">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Histórico de Pedidos</h2>
+                    <div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg border border-green-200">
+                        <span class="text-sm uppercase tracking-wide font-semibold block">Faturamento no Período</span>
+                        <span class="text-2xl font-black block" id="total-relatorio">R$ 0,00</span>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700 border-b-2 border-gray-300 print:bg-white print:border-black uppercase tracking-wider">
+                                <th class="p-3 border-b font-semibold">Data</th>
+                                <th class="p-3 border-b font-semibold">ID</th>
+                                <th class="p-3 border-b font-semibold w-1/2">Itens</th>
+                                <th class="p-3 border-b font-semibold text-right">Valor Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="relatorio-body" class="divide-y divide-gray-200">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Setar data da impressão
+        document.getElementById('data-impressao').textContent = "Gerado em: " + new Date().toLocaleString('pt-BR');
+
+        // ==================== ESTADO DOS DADOS ====================
+        let produtos = [
+            { id: 1, nome: "Burger Clássico", categoria: "Hambúrgueres", preco: 24.90, desc: "Pão brioche, carne 180g, queijo", foto: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=150&q=80" },
+            { id: 2, nome: "Burger Bacon", categoria: "Hambúrgueres", preco: 29.90, desc: "Carne 180g, cheddar, muito bacon", foto: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=150&q=80" },
+            { id: 3, nome: "Batata Frita", categoria: "Acompanhamentos", preco: 12.90, desc: "Porção individual", foto: "https://images.unsplash.com/photo-1585109649139-366815a0d451?auto=format&fit=crop&w=150&q=80" }
+        ];
+
+        // Simulando a data de "Hoje" baseada na sua necessidade
+        const hojeSimulado = new Date().toISOString().split('T')[0];
+
+        let pedidos = [
+            { id: "1001", data: hojeSimulado, cliente: "Mesa 04", itens: "2x Burger Clássico", total: 49.80, status: "Entregue" },
+            { id: "1002", data: hojeSimulado, cliente: "João (Delivery)", itens: "1x Burger Bacon, 1x Batata", total: 47.80, status: "Entregue" },
+            { id: "1003", data: "2023-10-24", cliente: "Mesa 01", itens: "3x Burger Clássico", total: 74.70, status: "Entregue" }
+        ];
+
+        // ==================== LÓGICA DE NAVEGAÇÃO ====================
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                navBtns.forEach(b => {
+                    b.classList.remove('bg-red-600', 'text-white', 'shadow');
+                    b.classList.add('hover:bg-gray-800', 'text-gray-300');
+                });
+                btn.classList.add('bg-red-600', 'text-white', 'shadow');
+                btn.classList.remove('hover:bg-gray-800', 'text-gray-300');
+
+                tabContents.forEach(tab => tab.classList.add('hidden'));
+                const target = btn.getAttribute('data-target');
+                document.getElementById(target).classList.remove('hidden');
+            });
+        });
+
+        // ==================== LÓGICA DO DASHBOARD ====================
+        function atualizarDashboard() {
+            const pedidosHoje = pedidos.filter(p => p.data === hojeSimulado);
+            const faturamento = pedidosHoje.reduce((sum, p) => sum + p.total, 0);
+            const totalPedidos = pedidosHoje.length;
+            const ticketMedio = totalPedidos > 0 ? (faturamento / totalPedidos) : 0;
+
+            document.getElementById('dash-faturamento').textContent = `R$ ${faturamento.toFixed(2).replace('.', ',')}`;
+            document.getElementById('dash-pedidos').textContent = totalPedidos;
+            document.getElementById('dash-ticket').textContent = `R$ ${ticketMedio.toFixed(2).replace('.', ',')}`;
+
+            const tbody = document.getElementById('recent-orders-body');
+            tbody.innerHTML = '';
+            pedidosHoje.forEach(p => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4 font-bold text-gray-800 border-b">#${p.id}</td>
+                        <td class="p-4 text-gray-600 border-b">${p.cliente}</td>
+                        <td class="p-4 font-semibold text-gray-800 border-b">R$ ${p.total.toFixed(2).replace('.', ',')}</td>
+                        <td class="p-4 border-b">
+                            <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">${p.status}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ==================== LÓGICA DE PRODUTOS ====================
+        function renderizarProdutos() {
+            const tbody = document.getElementById('produtos-body');
+            tbody.innerHTML = '';
+            produtos.forEach(prod => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <div class="w-14 h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                                <img src="${prod.foto}" alt="${prod.nome}" class="w-full h-full object-cover">
+                            </div>
+                        </td>
+                        <td class="p-4 font-bold text-gray-800 text-base">${prod.nome}</td>
+                        <td class="p-4"><span class="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">${prod.categoria}</span></td>
+                        <td class="p-4 font-semibold text-gray-800">R$ ${prod.preco.toFixed(2).replace('.', ',')}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="excluirProduto(${prod.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Excluir">
+                                <i class="fas fa-trash-alt text-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('form-produto').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nome = document.getElementById('prod-nome').value;
+            const cat = document.getElementById('prod-cat').value;
+            const preco = parseFloat(document.getElementById('prod-preco').value);
+            const desc = document.getElementById('prod-desc').value;
+            const inputFoto = document.getElementById('prod-foto');
+
+            if (inputFoto.files && inputFoto.files[0]) {
+                const leitor = new FileReader();
+                leitor.onload = function(eventoLeitura) {
+                    const fotoUrl = eventoLeitura.target.result;
+                    produtos.push({
+                        id: Date.now(),
+                        nome: nome,
+                        categoria: cat,
+                        preco: preco,
+                        desc: desc,
+                        foto: fotoUrl
+                    });
+
+                    document.getElementById('form-produto').reset();
+                    renderizarProdutos();
+                    // Alerta de sucesso visual (poderia ser um Toast)
+                    alert("Produto cadastrado com sucesso!");
+                };
+                leitor.readAsDataURL(inputFoto.files[0]);
+            }
+        });
+
+        window.excluirProduto = function(id) {
+            if(confirm("Tem certeza que deseja excluir este produto do cardápio?")) {
+                produtos = produtos.filter(p => p.id !== id);
+                renderizarProdutos();
+            }
+        }
+
+        // ==================== LÓGICA DE RELATÓRIOS ====================
+        function renderizarRelatorio(listaPedidos) {
+            const tbody = document.getElementById('relatorio-body');
+            tbody.innerHTML = '';
+            let faturamentoTotal = 0;
+
+            listaPedidos.forEach(p => {
+                faturamentoTotal += p.total;
+                // Formata a data de YYYY-MM-DD para DD/MM/YYYY
+                const [ano, mes, dia] = p.data.split('-');
+                const dataFormatada = `${dia}/${mes}/${ano}`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition print:hover:bg-transparent">
+                        <td class="p-3 text-gray-700">${dataFormatada}</td>
+                        <td class="p-3 font-mono text-gray-500 text-xs">#${p.id}</td>
+                        <td class="p-3 text-gray-800">${p.itens}</td>
+                        <td class="p-3 text-right font-bold text-gray-900">R$ ${p.total.toFixed(2).replace('.', ',')}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('total-relatorio').textContent = `R$ ${faturamentoTotal.toFixed(2).replace('.', ',')}`;
+        }
+
+        document.getElementById('btn-filtrar').addEventListener('click', () => {
+            const inicio = document.getElementById('filtro-inicio').value;
+            const fim = document.getElementById('filtro-fim').value;
+
+            let pedidosFiltrados = pedidos;
+
+            if (inicio) {
+                pedidosFiltrados = pedidosFiltrados.filter(p => p.data >= inicio);
+            }
+            if (fim) {
+                pedidosFiltrados = pedidosFiltrados.filter(p => p.data <= fim);
+            }
+
+            renderizarRelatorio(pedidosFiltrados);
+        });
+
+        // Inicialização
+        atualizarDashboard();
+        renderizarProdutos();
+        renderizarRelatorio(pedidos);
+    </script>
+</body>
+</html>

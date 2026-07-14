@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSC FOOD - Delivery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .cart-item-enter { animation: slideIn 0.3s forwards; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        /* Ocultar barra de rolagem mas manter funcional */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-20 md:pb-0">
+
+    <!-- Header com Logo e Cores Originais JSC FOOD -->
+    <header class="bg-gray-900 text-white shadow-lg sticky top-0 z-40 border-b-4 border-red-600">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JSC FOOD" class="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm">
+                <h1 class="text-2xl font-black tracking-wider uppercase">JSC FOOD</h1>
+            </div>
+
+            <div class="flex items-center">
+                <button id="cart-btn" class="relative bg-red-600 p-2.5 rounded-full hover:bg-red-700 transition shadow-md">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-yellow-400 text-black rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu Section -->
+    <section id="menu" class="py-10 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <!-- Filtros de Categoria (Estilo Original) -->
+            <div class="flex justify-center mb-8 overflow-x-auto pb-2 scrollbar-hide">
+                <div class="flex space-x-2 bg-white p-1 rounded-full shadow-sm whitespace-nowrap border border-gray-200">
+                    <button class="category-btn px-6 py-2 rounded-full bg-red-600 text-white font-bold transition" data-category="all">Todos</button>
+                    <button class="category-btn px-6 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition" data-category="burgers">Hambúrgueres</button>
+                    <button class="category-btn px-6 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition" data-category="sides">Acompanhamentos</button>
+                    <button class="category-btn px-6 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition" data-category="drinks">Bebidas</button>
+                </div>
+            </div>
+
+            <!-- Grade de Produtos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="menu-items">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= MODAL DA SACOLA (ESTRUTURA SOLICITADA) ================= -->
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+
+        <!-- Header da Sacola -->
+        <div class="p-5 bg-gray-900 text-white flex justify-between items-center shadow-md">
+            <h3 class="text-xl font-bold flex items-center"><i class="fas fa-shopping-bag mr-2 text-red-500"></i> Sua Sacola</h3>
+            <button id="close-cart" class="w-8 h-8 flex items-center justify-center bg-gray-800 rounded-full text-gray-300 hover:text-white transition">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Área Rolável (Itens + Informações de Envio) -->
+        <div class="flex-1 overflow-y-auto p-5 scrollbar-hide bg-gray-50">
+
+            <!-- Itens do Carrinho -->
+            <div id="cart-items" class="space-y-4 mb-6">
+                <div class="text-center py-12 text-gray-400" id="empty-cart-message">
+                    <i class="fas fa-shopping-cart text-6xl mb-4 opacity-50"></i>
+                    <p class="text-lg font-medium">Sua sacola está vazia</p>
+                </div>
+            </div>
+
+            <!-- Informações do Cliente (Fica visível sempre que há itens) -->
+            <div id="checkout-form" class="hidden bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                <h4 class="font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
+                    <i class="fas fa-motorcycle text-red-600 mr-2"></i> Informações de Envio
+                </h4>
+
+                <div class="space-y-4">
+                    <!-- Os campos exatos que você pediu -->
+                    <input type="text" id="cli-nome" placeholder="Seu nome completo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
+
+                    <input type="tel" id="cli-tel" placeholder="WhatsApp para contato" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
+
+                    <input type="text" id="cli-end" placeholder="Endereço de Entrega ou Retirada" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
+
+                    <input type="text" id="cli-ref" placeholder="Ponto de Referência (Obrigatório)*" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-yellow-50 placeholder-gray-600 transition" required>
+
+                    <select id="cli-pag" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none font-semibold text-gray-700 transition" required>
+                        <option value="">Formas de Pagamento...</option>
+                        <option value="PIX">PIX</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito (Máquina)</option>
+                        <option value="Cartão de Débito">Cartão de Débito (Máquina)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé Fixo (Total + Botão WhatsApp) -->
+        <div class="p-5 border-t border-gray-200 bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+            <div id="taxa-aviso" class="flex justify-between items-center text-sm text-gray-500 mb-2 hidden">
+                <span>Taxa de entrega:</span>
+                <span>R$ 5,00</span>
+            </div>
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-gray-800 font-bold text-lg">Total do Pedido:</span>
+                <span id="cart-total" class="text-2xl font-black text-red-600">R$ 0,00</span>
+            </div>
+
+            <button id="btn-enviar-whatsapp" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl transition flex justify-center items-center text-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <i class="fab fa-whatsapp text-2xl mr-2"></i> Enviar Pedido
+            </button>
+        </div>
+    </div>
+
+    <!-- Backdrop escuro -->
+    <div id="backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden backdrop-blur-sm transition-opacity"></div>
+
+    <!-- Notificação de Sucesso -->
+    <div id="success-notification" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center translate-y-24 transition-transform duration-300 z-50 border border-gray-700">
+        <i class="fas fa-check text-green-400 mr-2 text-xl"></i>
+        <span class="font-semibold">Adicionado à sacola!</span>
+    </div>
+
+    <script>
+        // ================= DADOS DO RESTAURANTE =================
+        const NUMERO_WHATSAPP = "5591999999999";
+        const TAXA_ENTREGA = 5.00;
+
+        // ================= DADOS DO CARDÁPIO =================
+        const menuItems = [
+            { id: 'burger1', name: 'Burger Clássico', description: 'Pão brioche, hambúrguer 180g, queijo.', price: 24.90, category: 'burgers', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80' },
+            { id: 'burger2', name: 'Burger Bacon', description: 'Pão brioche, carne 180g, cheddar, bacon.', price: 29.90, category: 'burgers', img: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80' },
+            { id: 'side1', name: 'Batata Frita', description: 'Porção crocante com molho especial.', price: 12.90, category: 'sides', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d451?auto=format&fit=crop&w=600&q=80' },
+            { id: 'drink1', name: 'Refrigerante Lata', description: 'Coca-Cola, Guaraná, Fanta 350ml.', price: 6.90, category: 'drinks', img: 'https://images.unsplash.com/photo-1554866585-cd94860890b8?auto=format&fit=crop&w=600&q=80' }
+        ];
+
+        let cart = [];
+
+        // ================= ELEMENTOS DO DOM =================
+        const menuItemsContainer = document.getElementById('menu-items');
+        const cartBtn = document.getElementById('cart-btn');
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const closeCartBtn = document.getElementById('close-cart');
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartCount = document.getElementById('cart-count');
+        const cartTotal = document.getElementById('cart-total');
+        const btnEnviarWhatsapp = document.getElementById('btn-enviar-whatsapp');
+        const checkoutFormDiv = document.getElementById('checkout-form');
+        const backdrop = document.getElementById('backdrop');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const taxaAviso = document.getElementById('taxa-aviso');
+
+        // ================= INICIALIZAÇÃO =================
+        function init() {
+            renderMenuItems();
+            setupEventListeners();
+        }
+
+        function renderMenuItems(category = 'all') {
+            menuItemsContainer.innerHTML = '';
+            const filteredItems = category === 'all' ? menuItems : menuItems.filter(item => item.category === category);
+
+            filteredItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'menu-item bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col transition duration-300';
+                div.innerHTML = `
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">${item.name}</h3>
+                        <p class="text-sm text-gray-500 mb-4 flex-1">${item.description}</p>
+                        <div class="flex justify-between items-center mt-auto border-t border-gray-100 pt-4">
+                            <span class="text-2xl font-black text-gray-900">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button class="add-to-cart bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold transition shadow-sm"
+                                    data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-img="${item.img}">
+                                <i class="fas fa-plus mr-1"></i> Pedir
+                            </button>
+                        </div>
+                    </div>
+                `;
+                menuItemsContainer.appendChild(div);
+            });
+
+            document.querySelectorAll('.add-to-cart').forEach(btn => btn.addEventListener('click', addToCart));
+        }
+
+        // ================= EVENT LISTENERES =================
+        function setupEventListeners() {
+            cartBtn.addEventListener('click', toggleCart);
+            closeCartBtn.addEventListener('click', toggleCart);
+            backdrop.addEventListener('click', toggleCart);
+
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const category = btn.dataset.category;
+                    categoryBtns.forEach(b => {
+                        b.classList.remove('bg-red-600', 'text-white');
+                        b.classList.add('text-gray-600', 'hover:bg-gray-100');
+                    });
+                    btn.classList.add('bg-red-600', 'text-white');
+                    btn.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                    renderMenuItems(category);
+                });
+            });
+
+            btnEnviarWhatsapp.addEventListener('click', finalizarPedidoWhatsApp);
+        }
+
+        // ================= LÓGICA DO CARRINHO =================
+        function addToCart(e) {
+            const btn = e.target.closest('.add-to-cart');
+            const { id, name, price, img } = btn.dataset;
+            const floatPrice = parseFloat(price);
+
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, name, price: floatPrice, img, quantity: 1 });
+            }
+
+            updateCartUI();
+            showNotification();
+        }
+
+        function updateCartUI() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            cartItemsContainer.innerHTML = '';
+
+            if (cart.length === 0) {
+                document.getElementById('empty-cart-message').classList.remove('hidden');
+                checkoutFormDiv.classList.add('hidden');
+                taxaAviso.classList.add('hidden');
+                btnEnviarWhatsapp.disabled = true;
+                cartTotal.textContent = "R$ 0,00";
+            } else {
+                document.getElementById('empty-cart-message').classList.add('hidden');
+                checkoutFormDiv.classList.remove('hidden'); // Exibe o formulário de entrega!
+                taxaAviso.classList.remove('hidden');
+                btnEnviarWhatsapp.disabled = false;
+
+                cart.forEach(item => {
+                    cartItemsContainer.innerHTML += `
+                        <div class="cart-item-enter flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+                            <img src="${item.img}" class="w-16 h-16 object-cover rounded-lg mr-4 border border-gray-200">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">${item.name}</h4>
+                                <span class="font-semibold text-gray-500 text-sm">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                            <!-- Botões de Quantidade Arredondados estilo a imagem -->
+                            <div class="flex items-center border border-gray-200 rounded-full px-2 py-1 bg-gray-50 ml-2">
+                                <button class="text-gray-500 hover:text-red-600 w-6 flex items-center justify-center font-bold text-lg transition" onclick="changeQuantity('${item.id}', -1)">-</button>
+                                <span class="mx-1 font-bold text-sm w-5 text-center text-gray-800">${item.quantity}</span>
+                                <button class="text-gray-500 hover:text-green-600 w-6 flex items-center justify-center font-bold text-lg transition" onclick="changeQuantity('${item.id}', 1)">+</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const total = subtotal + TAXA_ENTREGA;
+                cartTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            }
+        }
+
+        window.changeQuantity = function(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+                updateCartUI();
+            }
+        }
+
+        function toggleCart() {
+            cartSidebar.classList.toggle('translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        function showNotification() {
+            const notif = document.getElementById('success-notification');
+            notif.classList.remove('translate-y-24');
+            setTimeout(() => notif.classList.add('translate-y-24'), 2500);
+        }
+
+        // ================= ENVIAR PARA WHATSAPP =================
+        async function finalizarPedidoWhatsApp() {
+            const nome = document.getElementById('cli-nome').value.trim();
+            const tel = document.getElementById('cli-tel').value.trim();
+            const end = document.getElementById('cli-end').value.trim();
+            const ref = document.getElementById('cli-ref').value.trim();
+            const pag = document.getElementById('cli-pag').value;
+
+            // Validação de todos os campos (incluindo Referência que agora é obrigatório)
+            if(!nome || !tel || !end || !ref || !pag) {
+                alert("Por favor, preencha todas as informações de envio (incluindo a referência) para enviar o pedido.");
+                return;
+            }
+
+            const idPedido = Math.floor(1000 + Math.random() * 9000);
+
+            let itensTexto = "";
+            let subtotal = 0;
+            cart.forEach(item => {
+                let linhaTotal = item.price * item.quantity;
+                subtotal += linhaTotal;
+                itensTexto += `▪️ ${item.quantity}x ${item.name} - R$ ${linhaTotal.toFixed(2).replace('.', ',')}\n`;
+            });
+
+            let totalFinal = subtotal + TAXA_ENTREGA;
+
+            let mensagem = `*NOVO PEDIDO - #${idPedido}* 🍔\n\n`;
+            mensagem += `👤 Nome: ${nome}\n📱 Contato: ${tel}\n\n`;
+            mensagem += `*ENDEREÇO DE ENTREGA*\n📍 ${end}\n📌 Ref: ${ref}\n\n`;
+            mensagem += `*RESUMO DO PEDIDO*\n${itensTexto}`;
+            mensagem += `\n🛵 Entrega: R$ ${TAXA_ENTREGA.toFixed(2).replace('.', ',')}\n`;
+            mensagem += `💰 *TOTAL A PAGAR: R$ ${totalFinal.toFixed(2).replace('.', ',')}*\n\n`;
+            mensagem += `💳 Pagamento: ${pag}\n`;
+
+            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensagem)}`, '_blank');
+
+            cart = [];
+            updateCartUI();
+            toggleCart();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
