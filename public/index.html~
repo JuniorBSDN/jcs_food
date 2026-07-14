@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSC FOOD - Delivery</title>
+    <title>JCS FOODS - Delivery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -33,7 +33,7 @@
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JSC FOOD" class="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm">
-                <h1 class="text-2xl font-black tracking-wider uppercase">JSC FOOD</h1>
+                <h1 class="text-2xl font-black tracking-wider uppercase">JCS FOODS</h1>
             </div>
 
             <div class="flex items-center">
@@ -48,7 +48,7 @@
     <!-- Menu Section -->
     <section id="menu" class="py-10 bg-gray-50">
         <div class="container mx-auto px-4">
-            <!-- Filtros de Categoria (Estilo Original) -->
+            <!-- Filtros de Categoria -->
             <div class="flex justify-center mb-8 overflow-x-auto pb-2 scrollbar-hide">
                 <div class="flex space-x-2 bg-white p-1 rounded-full shadow-sm whitespace-nowrap border border-gray-200">
                     <button class="category-btn px-6 py-2 rounded-full bg-red-600 text-white font-bold transition" data-category="all">Todos</button>
@@ -60,12 +60,24 @@
 
             <!-- Grade de Produtos -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="menu-items">
-                <!-- Preenchido via JS -->
+                <!-- Preenchido via JS dinamicamente pelo Banco de Dados -->
+                <div class="col-span-full text-center py-10">
+                    <i class="fas fa-spinner fa-spin text-4xl text-red-600 mb-4"></i>
+                    <p class="text-gray-500 font-bold">Carregando cardápio fresquinho...</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ================= MODAL DA SACOLA (ESTRUTURA SOLICITADA) ================= -->
+    <!-- ================= MODAL DE IMAGEM AMPLIADA ================= -->
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[60] hidden flex justify-center items-center backdrop-blur-sm transition-opacity">
+        <button onclick="closeImageModal()" class="absolute top-6 right-6 text-white hover:text-red-500 text-4xl transition z-10">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="modal-image-src" src="" alt="Imagem Ampliada" class="max-w-[90%] max-h-[90vh] object-contain rounded-xl shadow-2xl">
+    </div>
+
+    <!-- ================= MODAL DA SACOLA ================= -->
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
 
         <!-- Header da Sacola -->
@@ -79,30 +91,29 @@
         <!-- Área Rolável (Itens + Informações de Envio) -->
         <div class="flex-1 overflow-y-auto p-5 scrollbar-hide bg-gray-50">
 
-            <!-- Itens do Carrinho -->
-            <div id="cart-items" class="space-y-4 mb-6">
-                <div class="text-center py-12 text-gray-400" id="empty-cart-message">
-                    <i class="fas fa-shopping-cart text-6xl mb-4 opacity-50"></i>
-                    <p class="text-lg font-medium">Sua sacola está vazia</p>
-                </div>
+            <!-- Mensagem de Carrinho Vazio -->
+            <div class="text-center py-12 text-gray-400 block" id="empty-cart-message">
+                <i class="fas fa-shopping-bag text-6xl mb-4 opacity-50"></i>
+                <p class="text-lg font-medium">Sua sacola está vazia</p>
             </div>
 
-            <!-- Informações do Cliente (Fica visível sempre que há itens) -->
+            <!-- Container para os Itens do Carrinho -->
+            <div id="cart-items" class="space-y-4 mb-6">
+                <!-- Preenchido via JS -->
+            </div>
+
+            <!-- Formulário de Informações do Cliente -->
             <div id="checkout-form" class="hidden bg-white p-5 rounded-xl shadow-sm border border-gray-200">
                 <h4 class="font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
                     <i class="fas fa-motorcycle text-red-600 mr-2"></i> Informações de Envio
                 </h4>
 
                 <div class="space-y-4">
-                    <!-- Os campos exatos que você pediu -->
                     <input type="text" id="cli-nome" placeholder="Seu nome completo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
-
                     <input type="tel" id="cli-tel" placeholder="WhatsApp para contato" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
-
-                    <input type="text" id="cli-end" placeholder="Endereço de Entrega ou Retirada" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
-
+                    <input type="text" id="cli-end" placeholder="Endereço de Entrega (Rua, Bairro, Número)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
                     <input type="text" id="cli-ref" placeholder="Ponto de Referência (Obrigatório)*" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-yellow-50 placeholder-gray-600 transition" required>
-
+                    
                     <select id="cli-pag" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none font-semibold text-gray-700 transition" required>
                         <option value="">Formas de Pagamento...</option>
                         <option value="PIX">PIX</option>
@@ -110,6 +121,12 @@
                         <option value="Cartão de Crédito">Cartão de Crédito (Máquina)</option>
                         <option value="Cartão de Débito">Cartão de Débito (Máquina)</option>
                     </select>
+
+                    <!-- CAMPO DE TROCO DINÂMICO (Fica escondido por padrão) -->
+                    <div id="div-troco" class="hidden transition-all duration-300">
+                        <label class="block text-sm font-bold text-gray-600 mb-1 pl-1">Troco para quanto?</label>
+                        <input type="number" id="cli-troco" placeholder="Ex: 50 (Deixe em branco se não precisar)" class="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition bg-green-50">
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,17 +159,10 @@
 
     <script>
         // ================= DADOS DO RESTAURANTE =================
-        const NUMERO_WHATSAPP = "5591999999999";
+        const NUMERO_WHATSAPP = "5591983252639";
         const TAXA_ENTREGA = 5.00;
 
-        // ================= DADOS DO CARDÁPIO =================
-        const menuItems = [
-            { id: 'burger1', name: 'Burger Clássico', description: 'Pão brioche, hambúrguer 180g, queijo.', price: 24.90, category: 'burgers', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80' },
-            { id: 'burger2', name: 'Burger Bacon', description: 'Pão brioche, carne 180g, cheddar, bacon.', price: 29.90, category: 'burgers', img: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80' },
-            { id: 'side1', name: 'Batata Frita', description: 'Porção crocante com molho especial.', price: 12.90, category: 'sides', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d451?auto=format&fit=crop&w=600&q=80' },
-            { id: 'drink1', name: 'Refrigerante Lata', description: 'Coca-Cola, Guaraná, Fanta 350ml.', price: 6.90, category: 'drinks', img: 'https://images.unsplash.com/photo-1554866585-cd94860890b8?auto=format&fit=crop&w=600&q=80' }
-        ];
-
+        let menuItems = [];
         let cart = [];
 
         // ================= ELEMENTOS DO DOM =================
@@ -161,6 +171,7 @@
         const cartSidebar = document.getElementById('cart-sidebar');
         const closeCartBtn = document.getElementById('close-cart');
         const cartItemsContainer = document.getElementById('cart-items');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
         const cartCount = document.getElementById('cart-count');
         const cartTotal = document.getElementById('cart-total');
         const btnEnviarWhatsapp = document.getElementById('btn-enviar-whatsapp');
@@ -168,23 +179,90 @@
         const backdrop = document.getElementById('backdrop');
         const categoryBtns = document.querySelectorAll('.category-btn');
         const taxaAviso = document.getElementById('taxa-aviso');
+        
+        // Elementos do Troco
+        const cliPag = document.getElementById('cli-pag');
+        const divTroco = document.getElementById('div-troco');
+        const inputTroco = document.getElementById('cli-troco');
 
         // ================= INICIALIZAÇÃO =================
         function init() {
-            renderMenuItems();
+            carregarProdutos();
             setupEventListeners();
+        }
+
+        // ================= LÓGICA DO MODAL DE IMAGEM =================
+        function openImageModal(imgSrc) {
+            const modal = document.getElementById('image-modal');
+            document.getElementById('modal-image-src').src = imgSrc;
+            modal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+        }
+
+        document.getElementById('image-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
+
+        // ================= BUSCAR DADOS NA API (PYTHON) =================
+        async function carregarProdutos() {
+            try {
+                const response = await fetch('/api/produtos');
+                if (!response.ok) throw new Error('Erro na resposta do servidor');
+                
+                const produtosDB = await response.json();
+                
+                menuItems = produtosDB.map(p => {
+                    let catTag = 'burgers';
+                    if(p.categoria === 'Acompanhamentos') catTag = 'sides';
+                    if(p.categoria === 'Bebidas') catTag = 'drinks';
+
+                    return {
+                        id: p.id.toString(),
+                        name: p.nome,
+                        description: p.descricao,
+                        price: parseFloat(p.preco),
+                        category: catTag,
+                        img: p.foto
+                    };
+                });
+
+                renderMenuItems('all');
+            } catch (error) {
+                console.error("Erro ao carregar cardápio:", error);
+                menuItemsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-10">
+                        <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
+                        <p class="text-gray-600 font-bold">Não foi possível carregar o cardápio agora.</p>
+                        <p class="text-sm text-gray-400">Verifique sua conexão ou tente recarregar a página.</p>
+                    </div>`;
+            }
         }
 
         function renderMenuItems(category = 'all') {
             menuItemsContainer.innerHTML = '';
             const filteredItems = category === 'all' ? menuItems : menuItems.filter(item => item.category === category);
 
+            if (filteredItems.length === 0) {
+                menuItemsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhum produto nesta categoria.</p>';
+                return;
+            }
+
             filteredItems.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'menu-item bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col transition duration-300';
+                
                 div.innerHTML = `
-                    <div class="relative h-48 overflow-hidden">
-                        <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover">
+                    <div class="relative h-48 overflow-hidden bg-gray-900 cursor-pointer group" onclick="openImageModal('${item.img}')">
+                        <img src="${item.img}" class="absolute inset-0 w-full h-full object-cover opacity-50 blur-lg scale-110" alt="">
+                        <img src="${item.img}" alt="${item.name}" class="relative w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-300 drop-shadow-2xl">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition duration-300 flex items-center justify-center z-10">
+                            <i class="fas fa-search-plus text-white opacity-0 group-hover:opacity-100 text-3xl drop-shadow-md transition duration-300"></i>
+                        </div>
                     </div>
                     <div class="p-5 flex-1 flex flex-col">
                         <h3 class="text-xl font-bold text-gray-800 mb-1">${item.name}</h3>
@@ -223,6 +301,16 @@
                 });
             });
 
+            // Lógica para mostrar/esconder o campo de Troco
+            cliPag.addEventListener('change', function(e) {
+                if (e.target.value === 'Dinheiro') {
+                    divTroco.classList.remove('hidden');
+                } else {
+                    divTroco.classList.add('hidden');
+                    inputTroco.value = ''; // Limpa o valor se mudar de ideia
+                }
+            });
+
             btnEnviarWhatsapp.addEventListener('click', finalizarPedidoWhatsApp);
         }
 
@@ -246,29 +334,32 @@
         function updateCartUI() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             cartCount.textContent = totalItems;
+
             cartItemsContainer.innerHTML = '';
 
             if (cart.length === 0) {
-                document.getElementById('empty-cart-message').classList.remove('hidden');
+                emptyCartMessage.classList.remove('hidden');
                 checkoutFormDiv.classList.add('hidden');
                 taxaAviso.classList.add('hidden');
                 btnEnviarWhatsapp.disabled = true;
                 cartTotal.textContent = "R$ 0,00";
             } else {
-                document.getElementById('empty-cart-message').classList.add('hidden');
-                checkoutFormDiv.classList.remove('hidden'); // Exibe o formulário de entrega!
+                emptyCartMessage.classList.add('hidden');
+                checkoutFormDiv.classList.remove('hidden');
                 taxaAviso.classList.remove('hidden');
                 btnEnviarWhatsapp.disabled = false;
 
                 cart.forEach(item => {
                     cartItemsContainer.innerHTML += `
                         <div class="cart-item-enter flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100">
-                            <img src="${item.img}" class="w-16 h-16 object-cover rounded-lg mr-4 border border-gray-200">
+                            <div class="relative w-16 h-16 rounded-lg overflow-hidden mr-4 border border-gray-200 bg-gray-900">
+                                <img src="${item.img}" class="absolute inset-0 w-full h-full object-cover blur-sm opacity-50 scale-110">
+                                <img src="${item.img}" class="relative w-full h-full object-contain drop-shadow-md p-0.5">
+                            </div>
                             <div class="flex-grow">
                                 <h4 class="font-bold text-gray-800 text-sm mb-1">${item.name}</h4>
                                 <span class="font-semibold text-gray-500 text-sm">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
                             </div>
-                            <!-- Botões de Quantidade Arredondados estilo a imagem -->
                             <div class="flex items-center border border-gray-200 rounded-full px-2 py-1 bg-gray-50 ml-2">
                                 <button class="text-gray-500 hover:text-red-600 w-6 flex items-center justify-center font-bold text-lg transition" onclick="changeQuantity('${item.id}', -1)">-</button>
                                 <span class="mx-1 font-bold text-sm w-5 text-center text-gray-800">${item.quantity}</span>
@@ -311,11 +402,21 @@
             const end = document.getElementById('cli-end').value.trim();
             const ref = document.getElementById('cli-ref').value.trim();
             const pag = document.getElementById('cli-pag').value;
+            const troco = document.getElementById('cli-troco').value.trim();
 
-            // Validação de todos os campos (incluindo Referência que agora é obrigatório)
             if(!nome || !tel || !end || !ref || !pag) {
                 alert("Por favor, preencha todas as informações de envio (incluindo a referência) para enviar o pedido.");
                 return;
+            }
+
+            // Tratamento da forma de pagamento + troco
+            let formaPagamentoFormatada = pag;
+            if (pag === 'Dinheiro') {
+                if (troco) {
+                    formaPagamentoFormatada += ` (Troco para R$ ${troco})`;
+                } else {
+                    formaPagamentoFormatada += ` (Sem troco)`;
+                }
             }
 
             const idPedido = Math.floor(1000 + Math.random() * 9000);
@@ -330,13 +431,32 @@
 
             let totalFinal = subtotal + TAXA_ENTREGA;
 
+            try {
+                await fetch('/api/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id_pedido: idPedido,
+                        cliente_nome: nome,
+                        telefone: tel,
+                        endereco: `${end} (Ref: ${ref})`,
+                        forma_pagamento: formaPagamentoFormatada, // Envia com o aviso de troco
+                        itens: itensTexto.replace(/\n/g, ', '), 
+                        total: totalFinal,
+                        status: "Aguardando Pagamento"
+                    })
+                });
+            } catch (e) {
+                console.error("Falha ao salvar no banco, mas prosseguindo com o WhatsApp...", e);
+            }
+
             let mensagem = `*NOVO PEDIDO - #${idPedido}* 🍔\n\n`;
             mensagem += `👤 Nome: ${nome}\n📱 Contato: ${tel}\n\n`;
             mensagem += `*ENDEREÇO DE ENTREGA*\n📍 ${end}\n📌 Ref: ${ref}\n\n`;
             mensagem += `*RESUMO DO PEDIDO*\n${itensTexto}`;
             mensagem += `\n🛵 Entrega: R$ ${TAXA_ENTREGA.toFixed(2).replace('.', ',')}\n`;
             mensagem += `💰 *TOTAL A PAGAR: R$ ${totalFinal.toFixed(2).replace('.', ',')}*\n\n`;
-            mensagem += `💳 Pagamento: ${pag}\n`;
+            mensagem += `💳 Pagamento: ${formaPagamentoFormatada}\n`;
 
             window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensagem)}`, '_blank');
 
