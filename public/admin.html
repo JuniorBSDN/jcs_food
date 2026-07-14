@@ -7,30 +7,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Estilos para impressão: esconde menus e mostra apenas o conteúdo principal */
         @media print {
-            .no-print {
-                display: none !important;
-            }
-            body {
-                background-color: white;
-            }
-            .print-container {
-                padding: 0;
-                margin: 0;
-                width: 100%;
-            }
-            .shadow-sm {
-                box-shadow: none !important;
-                border: 1px solid #ddd;
-            }
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .print-container { padding: 0; margin: 0; width: 100%; }
+            .shadow-sm { box-shadow: none !important; border: 1px solid #ddd; }
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans flex min-h-screen">
+<body class="bg-gray-100 font-sans flex min-h-screen hidden" id="admin-body">
 
     <aside class="w-64 bg-gray-900 text-white p-4 no-print flex flex-col shadow-2xl z-10">
-
         <div class="flex flex-col items-center justify-center mt-6 mb-10 border-b border-gray-700 pb-6">
             <div class="w-28 h-28 bg-white rounded-full p-1 shadow-lg mb-4 flex items-center justify-center overflow-hidden">
                 <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="Logotipo JSC FOOD" class="w-full h-full object-cover rounded-full">
@@ -58,11 +45,11 @@
     <main class="flex-1 p-8 print-container overflow-y-auto">
 
         <section id="dashboard" class="tab-content block">
-            <h1 class="text-3xl font-bold text-gray-800 mb-8">Visão Geral (Hoje)</h1>
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">Visão Geral</h1>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 transform transition hover:-translate-y-1">
-                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Faturamento</h3>
+                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Faturamento (Geral)</h3>
                     <p class="text-3xl font-black text-gray-800 mt-2" id="dash-faturamento">R$ 0,00</p>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 transform transition hover:-translate-y-1">
@@ -76,7 +63,10 @@
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-4">Últimos Pedidos Recebidos</h2>
+                <div class="flex justify-between items-center mb-4 border-b pb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Últimos Pedidos Recebidos</h2>
+                    <button onclick="carregarPedidos()" class="text-gray-500 hover:text-red-600 transition"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -127,7 +117,7 @@
                         <input type="text" id="prod-desc" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
                     </div>
                     <div class="md:col-span-4 flex justify-end mt-4 border-t pt-4">
-                        <button type="submit" class="bg-red-600 text-white font-bold py-3 px-8 rounded-lg shadow hover:bg-red-700 transition flex items-center">
+                        <button type="submit" id="btn-salvar-produto" class="bg-red-600 text-white font-bold py-3 px-8 rounded-lg shadow hover:bg-red-700 transition flex items-center">
                             <i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto
                         </button>
                     </div>
@@ -213,49 +203,98 @@
     </main>
 
     <script>
-        // Setar data da impressão
-        document.getElementById('data-impressao').textContent = "Gerado em: " + new Date().toLocaleString('pt-BR');
+        // ==================== SEGURANÇA E LOGIN ====================
+        let tokenAcesso = false;
+        let produtos = [];
+        let pedidos = [];
 
-        // ==================== ESTADO DOS DADOS ====================
-        let produtos = [
-            { id: 1, nome: "Burger Clássico", categoria: "Hambúrgueres", preco: 24.90, desc: "Pão brioche, carne 180g, queijo", foto: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=150&q=80" },
-            { id: 2, nome: "Burger Bacon", categoria: "Hambúrgueres", preco: 29.90, desc: "Carne 180g, cheddar, muito bacon", foto: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=150&q=80" },
-            { id: 3, nome: "Batata Frita", categoria: "Acompanhamentos", preco: 12.90, desc: "Porção individual", foto: "https://images.unsplash.com/photo-1585109649139-366815a0d451?auto=format&fit=crop&w=150&q=80" }
-        ];
+        async function verificarSenhaAdmin() {
+            const senhaDigitada = prompt("🔒 Área Restrita - JSC FOOD\n\nPor favor, insira a senha de administrador:");
 
-        // Simulando a data de "Hoje" baseada na sua necessidade
-        const hojeSimulado = new Date().toISOString().split('T')[0];
+            if (!senhaDigitada) {
+                bloquearTela();
+                return;
+            }
 
-        let pedidos = [
-            { id: "1001", data: hojeSimulado, cliente: "Mesa 04", itens: "2x Burger Clássico", total: 49.80, status: "Entregue" },
-            { id: "1002", data: hojeSimulado, cliente: "João (Delivery)", itens: "1x Burger Bacon, 1x Batata", total: 47.80, status: "Entregue" },
-            { id: "1003", data: "2023-10-24", cliente: "Mesa 01", itens: "3x Burger Clássico", total: 74.70, status: "Entregue" }
-        ];
-
-        // ==================== LÓGICA DE NAVEGAÇÃO ====================
-        const navBtns = document.querySelectorAll('.nav-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        navBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                navBtns.forEach(b => {
-                    b.classList.remove('bg-red-600', 'text-white', 'shadow');
-                    b.classList.add('hover:bg-gray-800', 'text-gray-300');
+            try {
+                // Conversando com o motor em Python
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senha: senhaDigitada })
                 });
-                btn.classList.add('bg-red-600', 'text-white', 'shadow');
-                btn.classList.remove('hover:bg-gray-800', 'text-gray-300');
 
-                tabContents.forEach(tab => tab.classList.add('hidden'));
-                const target = btn.getAttribute('data-target');
-                document.getElementById(target).classList.remove('hidden');
+                if (response.ok) {
+                    // Senha correta! Mostra o painel e carrega o banco de dados
+                    document.getElementById('admin-body').classList.remove('hidden');
+                    tokenAcesso = true;
+                    iniciarPainel();
+                } else {
+                    alert("❌ Senha Incorreta!");
+                    bloquearTela();
+                }
+            } catch (error) {
+                console.error("Erro ao fazer login:", error);
+                alert("Falha na comunicação com o servidor.");
+                bloquearTela();
+            }
+        }
+
+        function bloquearTela() {
+            document.documentElement.innerHTML = `
+                <head><title>Acesso Negado</title><script src="https://cdn.tailwindcss.com"><\/script></head>
+                <body class="bg-gray-900 flex flex-col items-center justify-center min-h-screen text-white">
+                    <i class="fas fa-lock text-6xl text-red-600 mb-4"></i>
+                    <h1 class="text-3xl font-bold mb-2">Acesso Negado</h1>
+                    <p class="text-gray-400 mb-6">Você precisa de autorização para ver esta página.</p>
+                    <button onclick="location.reload()" class="bg-red-600 px-6 py-2 rounded font-bold hover:bg-red-700 transition">Tentar Novamente</button>
+                </body>
+            `;
+        }
+
+        // ==================== INICIALIZAÇÃO DO PAINEL ====================
+        function iniciarPainel() {
+            document.getElementById('data-impressao').textContent = "Gerado em: " + new Date().toLocaleString('pt-BR');
+            configurarNavegacao();
+            carregarProdutos();
+            carregarPedidos();
+        }
+
+        function configurarNavegacao() {
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    navBtns.forEach(b => {
+                        b.classList.remove('bg-red-600', 'text-white', 'shadow');
+                        b.classList.add('hover:bg-gray-800', 'text-gray-300');
+                    });
+                    btn.classList.add('bg-red-600', 'text-white', 'shadow');
+                    btn.classList.remove('hover:bg-gray-800', 'text-gray-300');
+
+                    tabContents.forEach(tab => tab.classList.add('hidden'));
+                    const target = btn.getAttribute('data-target');
+                    document.getElementById(target).classList.remove('hidden');
+                });
             });
-        });
+        }
 
-        // ==================== LÓGICA DO DASHBOARD ====================
-        function atualizarDashboard() {
-            const pedidosHoje = pedidos.filter(p => p.data === hojeSimulado);
-            const faturamento = pedidosHoje.reduce((sum, p) => sum + p.total, 0);
-            const totalPedidos = pedidosHoje.length;
+        // ==================== LÓGICA DE PEDIDOS E DASHBOARD (API) ====================
+        async function carregarPedidos() {
+            try {
+                const res = await fetch('/api/pedidos');
+                if (res.ok) {
+                    pedidos = await res.json();
+                    atualizarDashboardUI();
+                    renderizarRelatorioUI(pedidos);
+                }
+            } catch (error) { console.error("Erro ao carregar pedidos:", error); }
+        }
+
+        function atualizarDashboardUI() {
+            const faturamento = pedidos.reduce((sum, p) => sum + parseFloat(p.total), 0);
+            const totalPedidos = pedidos.length;
             const ticketMedio = totalPedidos > 0 ? (faturamento / totalPedidos) : 0;
 
             document.getElementById('dash-faturamento').textContent = `R$ ${faturamento.toFixed(2).replace('.', ',')}`;
@@ -264,12 +303,14 @@
 
             const tbody = document.getElementById('recent-orders-body');
             tbody.innerHTML = '';
-            pedidosHoje.forEach(p => {
+
+            // Pega apenas os 5 mais recentes para a tela inicial
+            pedidos.slice(0, 5).forEach(p => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition">
-                        <td class="p-4 font-bold text-gray-800 border-b">#${p.id}</td>
-                        <td class="p-4 text-gray-600 border-b">${p.cliente}</td>
-                        <td class="p-4 font-semibold text-gray-800 border-b">R$ ${p.total.toFixed(2).replace('.', ',')}</td>
+                        <td class="p-4 font-bold text-gray-800 border-b">#${p.id_pedido}</td>
+                        <td class="p-4 text-gray-600 border-b">${p.cliente_nome}</td>
+                        <td class="p-4 font-semibold text-gray-800 border-b">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
                         <td class="p-4 border-b">
                             <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">${p.status}</span>
                         </td>
@@ -278,21 +319,31 @@
             });
         }
 
-        // ==================== LÓGICA DE PRODUTOS ====================
-        function renderizarProdutos() {
+        // ==================== LÓGICA DE PRODUTOS (API) ====================
+        async function carregarProdutos() {
+            try {
+                const res = await fetch('/api/produtos');
+                if (res.ok) {
+                    produtos = await res.json();
+                    renderizarProdutosUI();
+                }
+            } catch (error) { console.error("Erro ao carregar produtos:", error); }
+        }
+
+        function renderizarProdutosUI() {
             const tbody = document.getElementById('produtos-body');
             tbody.innerHTML = '';
             produtos.forEach(prod => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="p-4">
-                            <div class="w-14 h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                            <div class="w-14 h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-100">
                                 <img src="${prod.foto}" alt="${prod.nome}" class="w-full h-full object-cover">
                             </div>
                         </td>
                         <td class="p-4 font-bold text-gray-800 text-base">${prod.nome}</td>
                         <td class="p-4"><span class="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">${prod.categoria}</span></td>
-                        <td class="p-4 font-semibold text-gray-800">R$ ${prod.preco.toFixed(2).replace('.', ',')}</td>
+                        <td class="p-4 font-semibold text-gray-800">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</td>
                         <td class="p-4 text-center">
                             <button onclick="excluirProduto(${prod.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Excluir">
                                 <i class="fas fa-trash-alt text-lg"></i>
@@ -305,6 +356,10 @@
 
         document.getElementById('form-produto').addEventListener('submit', function(e) {
             e.preventDefault();
+            const btnSalvar = document.getElementById('btn-salvar-produto');
+            btnSalvar.disabled = true;
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...';
+
             const nome = document.getElementById('prod-nome').value;
             const cat = document.getElementById('prod-cat').value;
             const preco = parseFloat(document.getElementById('prod-preco').value);
@@ -313,51 +368,80 @@
 
             if (inputFoto.files && inputFoto.files[0]) {
                 const leitor = new FileReader();
-                leitor.onload = function(eventoLeitura) {
+                leitor.onload = async function(eventoLeitura) {
                     const fotoUrl = eventoLeitura.target.result;
-                    produtos.push({
-                        id: Date.now(),
+
+                    const novoProduto = {
                         nome: nome,
                         categoria: cat,
                         preco: preco,
-                        desc: desc,
-                        foto: fotoUrl
-                    });
+                        foto: fotoUrl,
+                        descricao: desc
+                    };
 
-                    document.getElementById('form-produto').reset();
-                    renderizarProdutos();
-                    // Alerta de sucesso visual (poderia ser um Toast)
-                    alert("Produto cadastrado com sucesso!");
+                    try {
+                        const res = await fetch('/api/produtos', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(novoProduto)
+                        });
+
+                        if (res.ok) {
+                            document.getElementById('form-produto').reset();
+                            carregarProdutos(); // Recarrega a lista do banco
+                            alert("Produto cadastrado com sucesso!");
+                        } else {
+                            alert("Erro ao cadastrar no banco de dados.");
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        alert("Falha na comunicação com a API.");
+                    } finally {
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
+                    }
                 };
                 leitor.readAsDataURL(inputFoto.files[0]);
             }
         });
 
-        window.excluirProduto = function(id) {
+        window.excluirProduto = async function(id) {
             if(confirm("Tem certeza que deseja excluir este produto do cardápio?")) {
-                produtos = produtos.filter(p => p.id !== id);
-                renderizarProdutos();
+                try {
+                    const res = await fetch(`/api/produtos/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        carregarProdutos(); // Atualiza a tela puxando do banco
+                    } else {
+                        alert("Erro ao excluir o produto.");
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             }
         }
 
         // ==================== LÓGICA DE RELATÓRIOS ====================
-        function renderizarRelatorio(listaPedidos) {
+        function renderizarRelatorioUI(listaPedidos) {
             const tbody = document.getElementById('relatorio-body');
             tbody.innerHTML = '';
             let faturamentoTotal = 0;
 
             listaPedidos.forEach(p => {
-                faturamentoTotal += p.total;
-                // Formata a data de YYYY-MM-DD para DD/MM/YYYY
-                const [ano, mes, dia] = p.data.split('-');
-                const dataFormatada = `${dia}/${mes}/${ano}`;
+                faturamentoTotal += parseFloat(p.total);
+
+                // Formatar a data que vem do banco
+                let dataFormatada = "N/A";
+                if (p.data_criacao) {
+                    const dataObj = new Date(p.data_criacao);
+                    dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                }
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition print:hover:bg-transparent">
                         <td class="p-3 text-gray-700">${dataFormatada}</td>
-                        <td class="p-3 font-mono text-gray-500 text-xs">#${p.id}</td>
+                        <td class="p-3 font-mono text-gray-500 text-xs">#${p.id_pedido}</td>
                         <td class="p-3 text-gray-800">${p.itens}</td>
-                        <td class="p-3 text-right font-bold text-gray-900">R$ ${p.total.toFixed(2).replace('.', ',')}</td>
+                        <td class="p-3 text-right font-bold text-gray-900">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
                     </tr>
                 `;
             });
@@ -372,19 +456,20 @@
             let pedidosFiltrados = pedidos;
 
             if (inicio) {
-                pedidosFiltrados = pedidosFiltrados.filter(p => p.data >= inicio);
+                const dataInicio = new Date(inicio).getTime();
+                pedidosFiltrados = pedidosFiltrados.filter(p => new Date(p.data_criacao).getTime() >= dataInicio);
             }
             if (fim) {
-                pedidosFiltrados = pedidosFiltrados.filter(p => p.data <= fim);
+                // Adiciona 1 dia (86400000ms) para incluir o dia final inteiro até as 23:59
+                const dataFim = new Date(fim).getTime() + 86400000;
+                pedidosFiltrados = pedidosFiltrados.filter(p => new Date(p.data_criacao).getTime() <= dataFim);
             }
 
-            renderizarRelatorio(pedidosFiltrados);
+            renderizarRelatorioUI(pedidosFiltrados);
         });
 
-        // Inicialização
-        atualizarDashboard();
-        renderizarProdutos();
-        renderizarRelatorio(pedidos);
+        // Chama a proteção de segurança imediatamente
+        verificarSenhaAdmin();
     </script>
 </body>
 </html>
