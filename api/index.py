@@ -45,6 +45,21 @@ class Pedido(BaseModel):
 class StatusUpdate(BaseModel):
     status: str
 
+#---------------------ROTA PARA EDITAR O PRODUTO---------------------------
+@app.put("/api/produtos/{produto_id}")
+def atualizar_produto(produto_id: int, prod: Produto):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE produtos 
+        SET nome = %s, categoria = %s, preco = %s, foto = %s, descricao = %s
+        WHERE id = %s;
+    """, (prod.nome, prod.categoria, prod.preco, prod.foto, prod.descricao, produto_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"mensagem": "Produto atualizado com sucesso"}
+
 # ==================== ROTAS DE SEGURANÇA ====================
 @app.post("/api/login")
 def validar_login(req: LoginRequest):
