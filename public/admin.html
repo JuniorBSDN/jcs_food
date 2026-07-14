@@ -38,11 +38,28 @@
         </nav>
 
         <div class="border-t border-gray-800 pt-4 text-xs text-gray-500 text-center font-semibold">
-            &copy; 2020 JCS FOOD V 1.0 <br> Produto Back Informática
+            &copy; 2026 JCS FOOD V 1.0 <br> Produto Back Informática
         </div>
     </aside>
 
-    <main class="flex-1 p-8 print-container overflow-y-auto">
+    <main class="flex-1 p-8 print-container overflow-y-auto relative">
+
+        <div id="view-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex justify-center items-center backdrop-blur-sm no-print">
+            <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full relative">
+                <button onclick="fecharModalVisualizar()" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl transition"><i class="fas fa-times"></i></button>
+                <div class="w-full h-48 bg-gray-100 rounded-xl overflow-hidden mb-5 border border-gray-200 flex justify-center items-center relative">
+                    <img src="https://i.imgur.com/zjaVmuG.jpeg" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30">
+                    <img id="view-foto" src="" alt="Produto" class="w-full h-full object-contain relative z-10 drop-shadow-md">
+                </div>
+                <h2 id="view-nome" class="text-2xl font-black text-gray-800 mb-1"></h2>
+                <span id="view-cat" class="inline-block bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-3"></span>
+                <p id="view-desc" class="text-gray-600 text-sm mb-5 leading-relaxed"></p>
+                <div class="flex justify-between items-center border-t border-gray-100 pt-4">
+                    <span class="text-gray-500 font-bold uppercase text-xs">Preço de Venda</span>
+                    <span class="text-3xl font-black text-green-600" id="view-preco"></span>
+                </div>
+            </div>
+        </div>
 
         <section id="dashboard" class="tab-content block">
             <h1 class="text-3xl font-bold text-gray-800 mb-8">Visão Geral</h1>
@@ -87,8 +104,12 @@
         <section id="produtos" class="tab-content hidden no-print">
             <h1 class="text-3xl font-bold text-gray-800 mb-8">Gerenciar Cardápio</h1>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Adicionar Novo Produto</h2>
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-8 relative border-t-4 border-red-600 transition-all duration-300" id="form-container">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h2 class="text-xl font-bold text-gray-800" id="titulo-form-produto">Adicionar Novo Produto</h2>
+                    <button id="btn-cancelar-edicao" onclick="cancelarEdicao()" class="hidden text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded transition">Cancelar Edição</button>
+                </div>
+                
                 <form id="form-produto" class="grid grid-cols-1 md:grid-cols-4 gap-5 pt-2">
                     <div class="md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nome do Produto</label>
@@ -108,7 +129,7 @@
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Foto do Produto</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Foto do Produto <span id="aviso-foto-edit" class="text-xs text-yellow-600 hidden font-normal ml-2">(Opcional: Envie apenas para trocar)</span></label>
                         <input type="file" id="prod-foto" accept="image/*" required class="w-full border border-gray-300 rounded-lg file:mr-4 file:py-2.5 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer focus:outline-none transition">
                     </div>
 
@@ -134,7 +155,7 @@
                                 <th class="p-4 border-b font-semibold">Nome</th>
                                 <th class="p-4 border-b font-semibold">Categoria</th>
                                 <th class="p-4 border-b font-semibold">Preço</th>
-                                <th class="p-4 border-b font-semibold text-center">Ações</th>
+                                <th class="p-4 border-b font-semibold text-center w-36">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="produtos-body" class="divide-y divide-gray-100">
@@ -207,6 +228,10 @@
         let tokenAcesso = false;
         let produtos = [];
         let pedidos = [];
+        
+        // Variáveis de controle para Edição
+        let produtoEditandoId = null;
+        let fotoProdutoAntiga = "";
 
         async function verificarSenhaAdmin() {
             const senhaDigitada = prompt("🔒 Área Restrita - JSC FOOD\n\nPor favor, insira a senha de administrador:");
@@ -217,7 +242,6 @@
             }
 
             try {
-                // Conversando com o motor em Python
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -225,7 +249,6 @@
                 });
 
                 if (response.ok) {
-                    // Senha correta! Mostra o painel e carrega o banco de dados
                     document.getElementById('admin-body').classList.remove('hidden');
                     tokenAcesso = true;
                     iniciarPainel();
@@ -280,7 +303,7 @@
             });
         }
 
-        // ==================== LÓGICA DE PEDIDOS E DASHBOARD (API) ====================
+        // ==================== LÓGICA DE PEDIDOS E DASHBOARD ====================
         async function carregarPedidos() {
             try {
                 const res = await fetch('/api/pedidos');
@@ -304,13 +327,11 @@
             const tbody = document.getElementById('recent-orders-body');
             tbody.innerHTML = '';
             
-            // Pega os últimos pedidos para a tela inicial
             pedidos.slice(0, 10).forEach(p => {
-                // Lógica de cores baseada no status para ficar bonito
                 let corStatus = "bg-yellow-100 text-yellow-800";
                 if(p.status === 'Entregue') corStatus = "bg-green-100 text-green-800";
                 if(p.status === 'Cancelado') corStatus = "bg-red-100 text-red-800";
-                if(p.status === 'Preparando') corStatus = "bg-blue-100 text-blue-800";
+                if(p.status === 'Preparando' || p.status === 'Aprovado / Preparando') corStatus = "bg-blue-100 text-blue-800";
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition border-b">
@@ -334,10 +355,8 @@
             });
         }
 
-        // Nova função para enviar a mudança de status pro Banco de Dados
         async function atualizarStatusPedido(idPedido, novoStatus) {
             try {
-                // 1. Envia a ordem pro Python (Vercel)
                 const res = await fetch(`/api/pedidos/${idPedido}/status`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -345,28 +364,20 @@
                 });
 
                 if (res.ok) {
-                    // 2. Atualiza a lista na memória do navegador
                     const pedidoAAlterar = pedidos.find(p => p.id_pedido == idPedido);
-                    if (pedidoAAlterar) {
-                        pedidoAAlterar.status = novoStatus;
-                    }
-                    
-                    // 3. Atualiza as telas para refletirem a nova cor
+                    if (pedidoAAlterar) pedidoAAlterar.status = novoStatus;
                     atualizarDashboardUI();
-                    
-                    // Toast/Aviso visual opcional
-                    console.log(`Pedido #${idPedido} atualizado para: ${novoStatus}`);
                 } else {
-                    alert("Erro ao atualizar o status no banco de dados.");
-                    carregarPedidos(); // Puxa do banco de novo se der erro para voltar ao original
+                    alert("Erro ao atualizar o status.");
+                    carregarPedidos();
                 }
             } catch (error) {
-                console.error("Erro:", error);
-                alert("Falha de conexão ao tentar atualizar o pedido.");
+                console.error(error);
+                carregarPedidos();
             }
         }
 
-        // ==================== LÓGICA DE PRODUTOS (API) ====================
+        // ==================== LÓGICA DE PRODUTOS (VER, EDITAR, EXCLUIR) ====================
         async function carregarProdutos() {
             try {
                 const res = await fetch('/api/produtos');
@@ -382,30 +393,114 @@
             tbody.innerHTML = '';
             produtos.forEach(prod => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
                         <td class="p-4">
-                            <div class="w-14 h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-100">
-                                <img src="${prod.foto}" alt="${prod.nome}" class="w-full h-full object-cover">
+                            <div class="w-14 h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-100 relative">
+                                <img src="${prod.foto}" alt="${prod.nome}" class="w-full h-full object-contain p-1 relative z-10">
                             </div>
                         </td>
                         <td class="p-4 font-bold text-gray-800 text-base">${prod.nome}</td>
                         <td class="p-4"><span class="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">${prod.categoria}</span></td>
                         <td class="p-4 font-semibold text-gray-800">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</td>
                         <td class="p-4 text-center">
-                            <button onclick="excluirProduto(${prod.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Excluir">
-                                <i class="fas fa-trash-alt text-lg"></i>
-                            </button>
+                            <div class="flex justify-center space-x-1">
+                                <button onclick="visualizarProduto(${prod.id})" class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition" title="Visualizar">
+                                    <i class="fas fa-eye text-lg"></i>
+                                </button>
+                                <button onclick="prepararEdicao(${prod.id})" class="text-yellow-600 hover:bg-yellow-100 p-2 rounded-lg transition" title="Editar">
+                                    <i class="fas fa-edit text-lg"></i>
+                                </button>
+                                <button onclick="excluirProduto(${prod.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Excluir">
+                                    <i class="fas fa-trash-alt text-lg"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
         }
 
+        // Ações: Visualizar Produto
+        function visualizarProduto(id) {
+            const prod = produtos.find(p => p.id === id);
+            if(prod) {
+                document.getElementById('view-foto').src = prod.foto;
+                document.getElementById('view-nome').textContent = prod.nome;
+                document.getElementById('view-cat').textContent = prod.categoria;
+                document.getElementById('view-desc').textContent = prod.descricao;
+                document.getElementById('view-preco').textContent = `R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}`;
+                
+                document.getElementById('view-modal').classList.remove('hidden');
+            }
+        }
+
+        function fecharModalVisualizar() {
+            document.getElementById('view-modal').classList.add('hidden');
+        }
+
+        // Ações: Preparar Edição
+        function prepararEdicao(id) {
+            const prod = produtos.find(p => p.id === id);
+            if(prod) {
+                produtoEditandoId = prod.id;
+                fotoProdutoAntiga = prod.foto; // Guarda a foto se ele não enviar outra
+
+                document.getElementById('prod-nome').value = prod.nome;
+                document.getElementById('prod-cat').value = prod.categoria;
+                document.getElementById('prod-preco').value = parseFloat(prod.preco);
+                document.getElementById('prod-desc').value = prod.descricao;
+                
+                // Remove obrigatoriedade da foto durante edição
+                document.getElementById('prod-foto').required = false;
+                document.getElementById('aviso-foto-edit').classList.remove('hidden');
+
+                // Altera o visual do formulário para "Modo Edição"
+                document.getElementById('titulo-form-produto').innerHTML = `<i class="fas fa-edit text-yellow-500 mr-2"></i> Editando: ${prod.nome}`;
+                const formContainer = document.getElementById('form-container');
+                formContainer.classList.remove('border-red-600');
+                formContainer.classList.add('border-yellow-500', 'bg-yellow-50');
+
+                document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
+
+                const btnSalvar = document.getElementById('btn-salvar-produto');
+                btnSalvar.innerHTML = '<i class="fas fa-save mr-2"></i> Atualizar Produto';
+                btnSalvar.classList.remove('bg-red-600', 'hover:bg-red-700');
+                btnSalvar.classList.add('bg-yellow-500', 'hover:bg-yellow-600', 'text-black');
+
+                // Rola suavemente para o topo do formulário
+                window.scrollTo({ top: document.getElementById('produtos').offsetTop, behavior: 'smooth' });
+            }
+        }
+
+        function cancelarEdicao() {
+            produtoEditandoId = null;
+            fotoProdutoAntiga = "";
+            document.getElementById('form-produto').reset();
+            
+            // Restaura obrigatoriedade da foto
+            document.getElementById('prod-foto').required = true;
+            document.getElementById('aviso-foto-edit').classList.add('hidden');
+
+            // Restaura o visual original
+            document.getElementById('titulo-form-produto').textContent = "Adicionar Novo Produto";
+            const formContainer = document.getElementById('form-container');
+            formContainer.classList.add('border-red-600');
+            formContainer.classList.remove('border-yellow-500', 'bg-yellow-50');
+
+            document.getElementById('btn-cancelar-edicao').classList.add('hidden');
+
+            const btnSalvar = document.getElementById('btn-salvar-produto');
+            btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
+            btnSalvar.classList.add('bg-red-600', 'hover:bg-red-700');
+            btnSalvar.classList.remove('bg-yellow-500', 'hover:bg-yellow-600', 'text-black');
+        }
+
+        // Submeter o Formulário (Serve para Criar ou Atualizar)
         document.getElementById('form-produto').addEventListener('submit', function(e) {
             e.preventDefault();
             const btnSalvar = document.getElementById('btn-salvar-produto');
             btnSalvar.disabled = true;
-            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...';
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processando...';
 
             const nome = document.getElementById('prod-nome').value;
             const cat = document.getElementById('prod-cat').value;
@@ -413,51 +508,62 @@
             const desc = document.getElementById('prod-desc').value;
             const inputFoto = document.getElementById('prod-foto');
 
+            // Lógica para definir qual foto será enviada
             if (inputFoto.files && inputFoto.files[0]) {
+                // Selecionou uma foto nova (criação ou edição com troca)
                 const leitor = new FileReader();
-                leitor.onload = async function(eventoLeitura) {
-                    const fotoUrl = eventoLeitura.target.result;
-
-                    const novoProduto = {
-                        nome: nome,
-                        categoria: cat,
-                        preco: preco,
-                        foto: fotoUrl,
-                        descricao: desc
-                    };
-
-                    try {
-                        const res = await fetch('/api/produtos', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(novoProduto)
-                        });
-
-                        if (res.ok) {
-                            document.getElementById('form-produto').reset();
-                            carregarProdutos(); // Recarrega a lista do banco
-                            alert("Produto cadastrado com sucesso!");
-                        } else {
-                            alert("Erro ao cadastrar no banco de dados.");
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        alert("Falha na comunicação com a API.");
-                    } finally {
-                        btnSalvar.disabled = false;
-                        btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
-                    }
+                leitor.onload = function(eventoLeitura) {
+                    enviarRequisicaoProduto(nome, cat, preco, desc, eventoLeitura.target.result);
                 };
                 leitor.readAsDataURL(inputFoto.files[0]);
+            } else {
+                // Não selecionou foto. Se está editando, manda a antiga.
+                if (produtoEditandoId) {
+                    enviarRequisicaoProduto(nome, cat, preco, desc, fotoProdutoAntiga);
+                }
             }
         });
 
+        // Envia para o Backend (POST ou PUT)
+        async function enviarRequisicaoProduto(nome, cat, preco, desc, foto) {
+            const payload = { nome, categoria: cat, preco, foto, descricao: desc };
+            let url = '/api/produtos';
+            let method = 'POST';
+
+            if (produtoEditandoId) {
+                url = `/api/produtos/${produtoEditandoId}`;
+                method = 'PUT';
+            }
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert(produtoEditandoId ? "Produto atualizado com sucesso!" : "Produto cadastrado com sucesso!");
+                    cancelarEdicao(); // Limpa a tela
+                    carregarProdutos(); // Atualiza a tabela
+                } else {
+                    alert("Erro ao salvar no banco de dados.");
+                    document.getElementById('btn-salvar-produto').disabled = false;
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Falha na comunicação com a API.");
+                document.getElementById('btn-salvar-produto').disabled = false;
+            }
+        }
+
+        // Ações: Excluir
         window.excluirProduto = async function(id) {
             if(confirm("Tem certeza que deseja excluir este produto do cardápio?")) {
                 try {
                     const res = await fetch(`/api/produtos/${id}`, { method: 'DELETE' });
                     if (res.ok) {
-                        carregarProdutos(); // Atualiza a tela puxando do banco
+                        carregarProdutos();
                     } else {
                         alert("Erro ao excluir o produto.");
                     }
@@ -476,7 +582,6 @@
             listaPedidos.forEach(p => {
                 faturamentoTotal += parseFloat(p.total);
 
-                // Formatar a data que vem do banco
                 let dataFormatada = "N/A";
                 if (p.data_criacao) {
                     const dataObj = new Date(p.data_criacao);
@@ -487,7 +592,7 @@
                     <tr class="hover:bg-gray-50 transition print:hover:bg-transparent">
                         <td class="p-3 text-gray-700">${dataFormatada}</td>
                         <td class="p-3 font-mono text-gray-500 text-xs">#${p.id_pedido}</td>
-                        <td class="p-3 text-gray-800">${p.itens}</td>
+                        <td class="p-3 text-gray-800 text-xs">${p.itens}</td>
                         <td class="p-3 text-right font-bold text-gray-900">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
                     </tr>
                 `;
@@ -507,7 +612,6 @@
                 pedidosFiltrados = pedidosFiltrados.filter(p => new Date(p.data_criacao).getTime() >= dataInicio);
             }
             if (fim) {
-                // Adiciona 1 dia (86400000ms) para incluir o dia final inteiro até as 23:59
                 const dataFim = new Date(fim).getTime() + 86400000;
                 pedidosFiltrados = pedidosFiltrados.filter(p => new Date(p.data_criacao).getTime() <= dataFim);
             }
