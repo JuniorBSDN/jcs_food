@@ -28,7 +28,6 @@
 </head>
 <body class="bg-gray-50 font-sans pb-20 md:pb-0">
 
-    <!-- Header com Logo e Cores Originais JSC FOOD -->
     <header class="bg-gray-900 text-white shadow-lg sticky top-0 z-40 border-b-4 border-red-600">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
@@ -45,10 +44,8 @@
         </div>
     </header>
 
-    <!-- Menu Section -->
     <section id="menu" class="py-10 bg-gray-50">
         <div class="container mx-auto px-4">
-            <!-- Filtros de Categoria (Estilo Original) -->
             <div class="flex justify-center mb-8 overflow-x-auto pb-2 scrollbar-hide">
                 <div class="flex space-x-2 bg-white p-1 rounded-full shadow-sm whitespace-nowrap border border-gray-200">
                     <button class="category-btn px-6 py-2 rounded-full bg-red-600 text-white font-bold transition" data-category="all">Todos</button>
@@ -58,17 +55,17 @@
                 </div>
             </div>
 
-            <!-- Grade de Produtos -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="menu-items">
-                <!-- Preenchido via JS -->
+                <div class="col-span-full text-center py-10">
+                    <i class="fas fa-spinner fa-spin text-4xl text-red-600 mb-4"></i>
+                    <p class="text-gray-500 font-bold">Carregando cardápio fresquinho...</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ================= MODAL DA SACOLA (CORRIGIDO) ================= -->
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
 
-        <!-- Header da Sacola -->
         <div class="p-5 bg-gray-900 text-white flex justify-between items-center shadow-md">
             <h3 class="text-xl font-bold flex items-center"><i class="fas fa-shopping-bag mr-2 text-red-500"></i> Sua Sacola</h3>
             <button id="close-cart" class="w-8 h-8 flex items-center justify-center bg-gray-800 rounded-full text-gray-300 hover:text-white transition">
@@ -76,21 +73,16 @@
             </button>
         </div>
 
-        <!-- Área Rolável (Itens + Informações de Envio) -->
         <div class="flex-1 overflow-y-auto p-5 scrollbar-hide bg-gray-50">
 
-            <!-- Mensagem de Carrinho Vazio (Separada dos Itens para não sumir) -->
             <div class="text-center py-12 text-gray-400 block" id="empty-cart-message">
                 <i class="fas fa-shopping-bag text-6xl mb-4 opacity-50"></i>
                 <p class="text-lg font-medium">Sua sacola está vazia</p>
             </div>
 
-            <!-- Container apenas para os Itens do Carrinho -->
             <div id="cart-items" class="space-y-4 mb-6">
-                <!-- Preenchido via JS -->
-            </div>
+                </div>
 
-            <!-- Formulário de Informações do Cliente (Fica visível sempre que há itens) -->
             <div id="checkout-form" class="hidden bg-white p-5 rounded-xl shadow-sm border border-gray-200">
                 <h4 class="font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
                     <i class="fas fa-motorcycle text-red-600 mr-2"></i> Informações de Envio
@@ -98,11 +90,8 @@
 
                 <div class="space-y-4">
                     <input type="text" id="cli-nome" placeholder="Seu nome completo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
-
                     <input type="tel" id="cli-tel" placeholder="WhatsApp para contato" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
-
                     <input type="text" id="cli-end" placeholder="Endereço de Entrega (Rua, Bairro, Número)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition" required>
-
                     <input type="text" id="cli-ref" placeholder="Ponto de Referência (Obrigatório)*" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-yellow-50 placeholder-gray-600 transition" required>
 
                     <select id="cli-pag" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none font-semibold text-gray-700 transition" required>
@@ -116,7 +105,6 @@
             </div>
         </div>
 
-        <!-- Rodapé Fixo (Total + Botão WhatsApp) -->
         <div class="p-5 border-t border-gray-200 bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
             <div id="taxa-aviso" class="flex justify-between items-center text-sm text-gray-500 mb-2 hidden">
                 <span>Taxa de entrega:</span>
@@ -133,10 +121,8 @@
         </div>
     </div>
 
-    <!-- Backdrop escuro -->
     <div id="backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden backdrop-blur-sm transition-opacity"></div>
 
-    <!-- Notificação de Sucesso -->
     <div id="success-notification" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center translate-y-24 transition-transform duration-300 z-50 border border-gray-700">
         <i class="fas fa-check text-green-400 mr-2 text-xl"></i>
         <span class="font-semibold">Adicionado à sacola!</span>
@@ -144,17 +130,11 @@
 
     <script>
         // ================= DADOS DO RESTAURANTE =================
-        const NUMERO_WHATSAPP = "5591999999999";
+        const NUMERO_WHATSAPP = "5591983252639";
         const TAXA_ENTREGA = 5.00;
 
-        // ================= DADOS DO CARDÁPIO =================
-        const menuItems = [
-            { id: 'burger1', name: 'Burger Clássico', description: 'Pão brioche, hambúrguer 180g, queijo.', price: 24.90, category: 'burgers', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80' },
-            { id: 'burger2', name: 'Burger Bacon', description: 'Pão brioche, carne 180g, cheddar, bacon.', price: 29.90, category: 'burgers', img: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80' },
-            { id: 'side1', name: 'Batata Frita', description: 'Porção crocante com molho especial.', price: 12.90, category: 'sides', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d451?auto=format&fit=crop&w=600&q=80' },
-            { id: 'drink1', name: 'Refrigerante Lata', description: 'Coca-Cola, Guaraná, Fanta 350ml.', price: 6.90, category: 'drinks', img: 'https://images.unsplash.com/photo-1554866585-cd94860890b8?auto=format&fit=crop&w=600&q=80' }
-        ];
-
+        // Agora o menuItems começa vazio e será preenchido pelo Banco de Dados!
+        let menuItems = [];
         let cart = [];
 
         // ================= ELEMENTOS DO DOM =================
@@ -174,13 +154,56 @@
 
         // ================= INICIALIZAÇÃO =================
         function init() {
-            renderMenuItems();
+            carregarProdutos(); // Chama a função que busca na API
             setupEventListeners();
+        }
+
+        // ================= BUSCAR DADOS NA API (PYTHON) =================
+        async function carregarProdutos() {
+            try {
+                // A Vercel direciona essa chamada para o seu arquivo api/index.py
+                const response = await fetch('/api/produtos');
+                if (!response.ok) throw new Error('Erro na resposta do servidor');
+
+                const produtosDB = await response.json();
+
+                // Mapeia os dados do Banco (PostgreSQL) para o formato do Frontend
+                menuItems = produtosDB.map(p => {
+                    // Traduz as categorias do banco para as tags do menu
+                    let catTag = 'burgers';
+                    if(p.categoria === 'Acompanhamentos') catTag = 'sides';
+                    if(p.categoria === 'Bebidas') catTag = 'drinks';
+
+                    return {
+                        id: p.id.toString(),
+                        name: p.nome,
+                        description: p.descricao,
+                        price: parseFloat(p.preco),
+                        category: catTag,
+                        img: p.foto
+                    };
+                });
+
+                renderMenuItems('all');
+            } catch (error) {
+                console.error("Erro ao carregar cardápio:", error);
+                menuItemsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-10">
+                        <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
+                        <p class="text-gray-600 font-bold">Não foi possível carregar o cardápio agora.</p>
+                        <p class="text-sm text-gray-400">Verifique sua conexão ou tente recarregar a página.</p>
+                    </div>`;
+            }
         }
 
         function renderMenuItems(category = 'all') {
             menuItemsContainer.innerHTML = '';
             const filteredItems = category === 'all' ? menuItems : menuItems.filter(item => item.category === category);
+
+            if (filteredItems.length === 0) {
+                menuItemsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhum produto nesta categoria.</p>';
+                return;
+            }
 
             filteredItems.forEach(item => {
                 const div = document.createElement('div');
@@ -250,20 +273,17 @@
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             cartCount.textContent = totalItems;
 
-            // Limpa APENAS a lista de itens, não a mensagem de vazio
             cartItemsContainer.innerHTML = '';
 
             if (cart.length === 0) {
-                // Carrinho Vazio
                 emptyCartMessage.classList.remove('hidden');
                 checkoutFormDiv.classList.add('hidden');
                 taxaAviso.classList.add('hidden');
                 btnEnviarWhatsapp.disabled = true;
                 cartTotal.textContent = "R$ 0,00";
             } else {
-                // Com itens no carrinho
                 emptyCartMessage.classList.add('hidden');
-                checkoutFormDiv.classList.remove('hidden'); // Exibe o formulário
+                checkoutFormDiv.classList.remove('hidden');
                 taxaAviso.classList.remove('hidden');
                 btnEnviarWhatsapp.disabled = false;
 
@@ -318,7 +338,6 @@
             const ref = document.getElementById('cli-ref').value.trim();
             const pag = document.getElementById('cli-pag').value;
 
-            // Validação de todos os campos
             if(!nome || !tel || !end || !ref || !pag) {
                 alert("Por favor, preencha todas as informações de envio (incluindo a referência) para enviar o pedido.");
                 return;
@@ -335,6 +354,26 @@
             });
 
             let totalFinal = subtotal + TAXA_ENTREGA;
+
+            // Envia silenciosamente para o banco de dados (Relatório do Admin)
+            try {
+                await fetch('/api/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id_pedido: idPedido,
+                        cliente_nome: nome,
+                        telefone: tel,
+                        endereco: `${end} (Ref: ${ref})`,
+                        forma_pagamento: pag,
+                        itens: itensTexto.replace(/\n/g, ', '), // Formata os itens em uma linha
+                        total: totalFinal,
+                        status: "Enviado WhatsApp"
+                    })
+                });
+            } catch (e) {
+                console.error("Falha ao salvar no banco, mas prosseguindo com o WhatsApp...", e);
+            }
 
             let mensagem = `*NOVO PEDIDO - #${idPedido}* 🍔\n\n`;
             mensagem += `👤 Nome: ${nome}\n📱 Contato: ${tel}\n\n`;
