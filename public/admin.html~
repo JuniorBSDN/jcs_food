@@ -13,20 +13,45 @@
             .print-container { padding: 0; margin: 0; width: 100%; }
             .shadow-sm { box-shadow: none !important; border: 1px solid #ddd; }
         }
+        /* Ocultar scrollbar mas manter funcionalidade */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans flex min-h-screen hidden" id="admin-body">
+<body class="bg-gray-100 font-sans flex flex-col md:flex-row min-h-screen hidden" id="admin-body">
 
-    <aside class="w-64 bg-gray-900 text-white p-4 no-print flex flex-col shadow-2xl z-10">
-        <div class="flex flex-col items-center justify-center mt-6 mb-10 border-b border-gray-700 pb-6">
+    <!-- CABEÇALHO MOBILE (Visível apenas em telas pequenas) -->
+    <div class="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center shadow-md z-20 no-print">
+        <div class="flex items-center space-x-3">
+            <img src="https://i.imgur.com/zjaVmuG.jpeg" class="w-12 h-12 rounded-full border-2 border-gray-700 object-cover">
+            <h1 class="text-xl font-bold tracking-wider">ADMINISTRAÇÃO</h1>
+        </div>
+        <button id="btn-menu-mobile" class="text-2xl hover:text-red-500 transition focus:outline-none">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- BARRA LATERAL (Sidebar) -->
+    <aside id="sidebar" class="w-64 bg-gray-900 text-white p-4 no-print flex flex-col shadow-2xl z-40 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out h-full">
+        
+        <!-- Botão fechar (Apenas Mobile) -->
+        <button id="btn-fechar-sidebar" class="md:hidden absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="flex flex-col items-center justify-center mt-6 mb-10 border-b border-gray-700 pb-6 hidden md:flex">
             <div class="w-28 h-28 bg-white rounded-full p-1 shadow-lg mb-4 flex items-center justify-center overflow-hidden">
                 <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="Logotipo JSC FOOD" class="w-full h-full object-cover rounded-full">
             </div>
             <h2 class="text-xl font-bold text-white tracking-wider">ADMINISTRAÇÃO</h2>
         </div>
 
+        <div class="md:hidden mt-8 mb-6 px-2">
+            <h2 class="text-lg font-bold text-gray-400 tracking-wider">MENU</h2>
+        </div>
+
         <nav class="space-y-3 flex-grow">
-            <button class="nav-btn w-full text-left py-3 px-4 bg-red-600 font-medium rounded-lg shadow transition flex items-center" data-target="dashboard">
+            <button class="nav-btn w-full text-left py-3 px-4 bg-red-600 text-white font-medium rounded-lg shadow transition flex items-center" data-target="dashboard">
                 <i class="fas fa-chart-line w-6 text-center mr-2"></i> Dashboard
             </button>
             <button class="nav-btn w-full text-left py-3 px-4 hover:bg-gray-800 text-gray-300 hover:text-white font-medium rounded-lg transition flex items-center" data-target="produtos">
@@ -38,65 +63,93 @@
         </nav>
 
         <div class="border-t border-gray-800 pt-4 text-xs text-gray-500 text-center font-semibold">
-            &copy; 2020 JCS FOOD V 1.0 <br> Produto Back Informática
+            &copy; 2026 JCS FOOD V 1.0 <br> Produto Back Informática
         </div>
     </aside>
 
-    <main class="flex-1 p-8 print-container overflow-y-auto">
+    <!-- BACKDROP ESCURO (Fundo escuro ao abrir menu no mobile) -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-30 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 p-4 md:p-8 print-container overflow-y-auto relative w-full">
+
+        <!-- MODAL DE VISUALIZAÇÃO DE PRODUTO -->
+        <div id="view-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex justify-center items-center backdrop-blur-sm no-print p-4">
+            <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full relative">
+                <button onclick="fecharModalVisualizar()" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl transition z-20"><i class="fas fa-times"></i></button>
+                <div class="w-full h-48 bg-gray-100 rounded-xl overflow-hidden mb-5 border border-gray-200 flex justify-center items-center relative">
+                    <img id="view-foto-fundo" src="" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30">
+                    <img id="view-foto" src="" alt="Produto" class="w-full h-full object-contain relative z-10 drop-shadow-md p-2">
+                </div>
+                <h2 id="view-nome" class="text-2xl font-black text-gray-800 mb-1"></h2>
+                <span id="view-cat" class="inline-block bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-3"></span>
+                <p id="view-desc" class="text-gray-600 text-sm mb-5 leading-relaxed"></p>
+                <div class="flex justify-between items-center border-t border-gray-100 pt-4">
+                    <span class="text-gray-500 font-bold uppercase text-xs">Preço de Venda</span>
+                    <span class="text-3xl font-black text-green-600" id="view-preco"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
         <section id="dashboard" class="tab-content block">
-            <h1 class="text-3xl font-bold text-gray-800 mb-8">Visão Geral</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8">Visão Geral</h1>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 transform transition hover:-translate-y-1">
-                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Faturamento (Geral)</h3>
-                    <p class="text-3xl font-black text-gray-800 mt-2" id="dash-faturamento">R$ 0,00</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+                <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border-l-4 border-green-500 transform transition hover:-translate-y-1">
+                    <h3 class="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Faturamento (Geral)</h3>
+                    <p class="text-2xl md:text-3xl font-black text-gray-800 mt-2" id="dash-faturamento">R$ 0,00</p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 transform transition hover:-translate-y-1">
-                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Pedidos Realizados</h3>
-                    <p class="text-3xl font-black text-gray-800 mt-2" id="dash-pedidos">0</p>
+                <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border-l-4 border-blue-500 transform transition hover:-translate-y-1">
+                    <h3 class="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Pedidos Realizados</h3>
+                    <p class="text-2xl md:text-3xl font-black text-gray-800 mt-2" id="dash-pedidos">0</p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500 transform transition hover:-translate-y-1">
-                    <h3 class="text-gray-500 text-sm font-bold uppercase tracking-wider">Ticket Médio</h3>
-                    <p class="text-3xl font-black text-gray-800 mt-2" id="dash-ticket">R$ 0,00</p>
+                <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border-l-4 border-yellow-500 transform transition hover:-translate-y-1">
+                    <h3 class="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Ticket Médio</h3>
+                    <p class="text-2xl md:text-3xl font-black text-gray-800 mt-2" id="dash-ticket">R$ 0,00</p>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm">
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm">
                 <div class="flex justify-between items-center mb-4 border-b pb-4">
-                    <h2 class="text-xl font-bold text-gray-800">Últimos Pedidos Recebidos</h2>
-                    <button onclick="carregarPedidos()" class="text-gray-500 hover:text-red-600 transition"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                    <h2 class="text-lg md:text-xl font-bold text-gray-800">Últimos Pedidos Recebidos</h2>
+                    <button onclick="carregarPedidos()" class="text-sm md:text-base text-gray-500 hover:text-red-600 transition"><i class="fas fa-sync-alt"></i> Atualizar</button>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
-                                <th class="p-4 border-b font-semibold">ID</th>
-                                <th class="p-4 border-b font-semibold">Cliente/Mesa</th>
-                                <th class="p-4 border-b font-semibold">Total</th>
-                                <th class="p-4 border-b font-semibold">Status</th>
+                            <tr class="bg-gray-50 text-gray-600 text-xs md:text-sm uppercase tracking-wider">
+                                <th class="p-3 md:p-4 border-b font-semibold">ID</th>
+                                <th class="p-3 md:p-4 border-b font-semibold">Cliente/Mesa</th>
+                                <th class="p-3 md:p-4 border-b font-semibold">Total</th>
+                                <th class="p-3 md:p-4 border-b font-semibold">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="recent-orders-body">
+                        <tbody id="recent-orders-body" class="text-sm md:text-base">
                             </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
+        <!-- PRODUTOS -->
         <section id="produtos" class="tab-content hidden no-print">
-            <h1 class="text-3xl font-bold text-gray-800 mb-8">Gerenciar Cardápio</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8">Gerenciar Cardápio</h1>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Adicionar Novo Produto</h2>
-                <form id="form-produto" class="grid grid-cols-1 md:grid-cols-4 gap-5 pt-2">
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm mb-8 relative border-t-4 border-red-600 transition-all duration-300" id="form-container">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h2 class="text-lg md:text-xl font-bold text-gray-800" id="titulo-form-produto">Adicionar Novo Produto</h2>
+                    <button id="btn-cancelar-edicao" onclick="cancelarEdicao()" class="hidden text-xs md:text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded transition">Cancelar Edição</button>
+                </div>
+                
+                <form id="form-produto" class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5 pt-2">
                     <div class="md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nome do Produto</label>
-                        <input type="text" id="prod-nome" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+                        <input type="text" id="prod-nome" required class="w-full border border-gray-300 rounded-lg p-2.5 md:p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Categoria</label>
-                        <select id="prod-cat" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition bg-white">
+                        <select id="prod-cat" class="w-full border border-gray-300 rounded-lg p-2.5 md:p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition bg-white">
                             <option value="Hambúrgueres">Hambúrgueres</option>
                             <option value="Acompanhamentos">Acompanhamentos</option>
                             <option value="Bebidas">Bebidas</option>
@@ -104,50 +157,51 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Preço (R$)</label>
-                        <input type="number" step="0.01" id="prod-preco" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+                        <input type="number" step="0.01" id="prod-preco" required class="w-full border border-gray-300 rounded-lg p-2.5 md:p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Foto do Produto</label>
-                        <input type="file" id="prod-foto" accept="image/*" required class="w-full border border-gray-300 rounded-lg file:mr-4 file:py-2.5 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer focus:outline-none transition">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Foto do Produto <span id="aviso-foto-edit" class="text-[10px] md:text-xs text-yellow-600 hidden font-normal ml-1">(Opcional para troca)</span></label>
+                        <input type="file" id="prod-foto" accept="image/*" required class="w-full border border-gray-300 rounded-lg file:mr-2 file:py-2 file:px-3 file:rounded-l-lg file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer focus:outline-none transition text-sm">
                     </div>
 
                     <div class="md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Descrição Breve</label>
-                        <input type="text" id="prod-desc" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+                        <input type="text" id="prod-desc" required class="w-full border border-gray-300 rounded-lg p-2.5 md:p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
                     </div>
-                    <div class="md:col-span-4 flex justify-end mt-4 border-t pt-4">
-                        <button type="submit" id="btn-salvar-produto" class="bg-red-600 text-white font-bold py-3 px-8 rounded-lg shadow hover:bg-red-700 transition flex items-center">
+                    <div class="md:col-span-4 flex justify-end mt-2 md:mt-4 border-t pt-4">
+                        <button type="submit" id="btn-salvar-produto" class="w-full md:w-auto bg-red-600 text-white font-bold py-3 px-8 rounded-lg shadow hover:bg-red-700 transition flex justify-center items-center">
                             <i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Produtos Cadastrados</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+                <h2 class="text-lg md:text-xl font-bold text-gray-800 mb-4">Produtos Cadastrados</h2>
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full text-left border-collapse min-w-[500px]">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
-                                <th class="p-4 border-b font-semibold w-20">Foto</th>
-                                <th class="p-4 border-b font-semibold">Nome</th>
-                                <th class="p-4 border-b font-semibold">Categoria</th>
-                                <th class="p-4 border-b font-semibold">Preço</th>
-                                <th class="p-4 border-b font-semibold text-center">Ações</th>
+                            <tr class="bg-gray-50 text-gray-600 text-xs md:text-sm uppercase tracking-wider">
+                                <th class="p-3 border-b font-semibold w-16 md:w-20">Foto</th>
+                                <th class="p-3 border-b font-semibold">Nome</th>
+                                <th class="p-3 border-b font-semibold">Categoria</th>
+                                <th class="p-3 border-b font-semibold">Preço</th>
+                                <th class="p-3 border-b font-semibold text-center w-28 md:w-36">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="produtos-body" class="divide-y divide-gray-100">
+                        <tbody id="produtos-body" class="divide-y divide-gray-100 text-sm md:text-base">
                             </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
+        <!-- RELATÓRIOS -->
         <section id="relatorios" class="tab-content hidden">
-            <div class="flex justify-between items-center mb-8 no-print border-b pb-4">
-                <h1 class="text-3xl font-bold text-gray-800">Relatório de Vendas</h1>
-                <button onclick="window.print()" class="bg-gray-800 text-white px-5 py-2.5 rounded-lg shadow hover:bg-gray-700 transition flex items-center font-semibold">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 no-print border-b pb-4 space-y-4 md:space-y-0">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Relatório de Vendas</h1>
+                <button onclick="window.print()" class="w-full md:w-auto bg-gray-800 text-white px-5 py-2.5 rounded-lg shadow hover:bg-gray-700 transition flex items-center justify-center font-semibold">
                     <i class="fas fa-print mr-2"></i> Imprimir Relatório
                 </button>
             </div>
@@ -159,32 +213,32 @@
                 <p class="text-sm text-gray-600 mt-1" id="data-impressao"></p>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm mb-8 no-print">
-                <div class="flex flex-wrap items-end gap-4">
-                    <div>
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm mb-6 md:mb-8 no-print">
+                <div class="flex flex-col md:flex-row flex-wrap items-end gap-4">
+                    <div class="w-full md:w-auto">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Data Inicial</label>
-                        <input type="date" id="filtro-inicio" class="border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="date" id="filtro-inicio" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                    <div>
+                    <div class="w-full md:w-auto">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Data Final</label>
-                        <input type="date" id="filtro-fim" class="border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="date" id="filtro-fim" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                    <button id="btn-filtrar" class="bg-blue-600 text-white font-bold px-8 py-2.5 rounded-lg shadow hover:bg-blue-700 transition flex items-center">
-                        <i class="fas fa-filter mr-2"></i> Filtrar Período
+                    <button id="btn-filtrar" class="w-full md:w-auto bg-blue-600 text-white font-bold px-8 py-2.5 rounded-lg shadow hover:bg-blue-700 transition flex items-center justify-center">
+                        <i class="fas fa-filter mr-2"></i> Filtrar
                     </button>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm print:shadow-none print:p-0">
-                <div class="flex justify-between items-end mb-6">
-                    <h2 class="text-xl font-bold text-gray-800">Histórico de Pedidos</h2>
-                    <div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg border border-green-200">
-                        <span class="text-sm uppercase tracking-wide font-semibold block">Faturamento no Período</span>
-                        <span class="text-2xl font-black block" id="total-relatorio">R$ 0,00</span>
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm print:shadow-none print:p-0">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 space-y-4 md:space-y-0">
+                    <h2 class="text-lg md:text-xl font-bold text-gray-800">Histórico de Pedidos</h2>
+                    <div class="w-full md:w-auto bg-green-50 text-green-700 px-4 py-3 rounded-lg border border-green-200 text-center md:text-left">
+                        <span class="text-xs md:text-sm uppercase tracking-wide font-semibold block">Faturamento no Período</span>
+                        <span class="text-xl md:text-2xl font-black block" id="total-relatorio">R$ 0,00</span>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[600px]">
                         <thead>
                             <tr class="bg-gray-100 text-gray-700 border-b-2 border-gray-300 print:bg-white print:border-black uppercase tracking-wider">
                                 <th class="p-3 border-b font-semibold">Data</th>
@@ -207,9 +261,13 @@
         let tokenAcesso = false;
         let produtos = [];
         let pedidos = [];
+        
+        // Variáveis de controle para Edição
+        let produtoEditandoId = null;
+        let fotoProdutoAntiga = "";
 
         async function verificarSenhaAdmin() {
-            const senhaDigitada = prompt("🔒 Área Restrita - JSC FOOD\n\nPor favor, insira a senha de administrador:");
+            const senhaDigitada = prompt("🔒 Área Restrita - JCS FOODS\n\nPor favor, insira a senha de gestor:");
 
             if (!senhaDigitada) {
                 bloquearTela();
@@ -217,7 +275,6 @@
             }
 
             try {
-                // Conversando com o motor em Python
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -225,7 +282,6 @@
                 });
 
                 if (response.ok) {
-                    // Senha correta! Mostra o painel e carrega o banco de dados
                     document.getElementById('admin-body').classList.remove('hidden');
                     tokenAcesso = true;
                     iniciarPainel();
@@ -242,12 +298,12 @@
 
         function bloquearTela() {
             document.documentElement.innerHTML = `
-                <head><title>Acesso Negado</title><script src="https://cdn.tailwindcss.com"><\/script></head>
-                <body class="bg-gray-900 flex flex-col items-center justify-center min-h-screen text-white">
+                <head><title>Acesso Negado</title><script src="https://cdn.tailwindcss.com"><\/script><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+                <body class="bg-gray-900 flex flex-col items-center justify-center min-h-screen text-white p-4 text-center">
                     <i class="fas fa-lock text-6xl text-red-600 mb-4"></i>
                     <h1 class="text-3xl font-bold mb-2">Acesso Negado</h1>
                     <p class="text-gray-400 mb-6">Você precisa de autorização para ver esta página.</p>
-                    <button onclick="location.reload()" class="bg-red-600 px-6 py-2 rounded font-bold hover:bg-red-700 transition">Tentar Novamente</button>
+                    <button onclick="location.reload()" class="bg-red-600 px-6 py-3 rounded-lg font-bold hover:bg-red-700 transition w-full max-w-xs">Tentar Novamente</button>
                 </body>
             `;
         }
@@ -256,8 +312,36 @@
         function iniciarPainel() {
             document.getElementById('data-impressao').textContent = "Gerado em: " + new Date().toLocaleString('pt-BR');
             configurarNavegacao();
+            configurarMenuMobile();
             carregarProdutos();
             carregarPedidos();
+        }
+
+        // Lógica do Menu Mobile
+        function configurarMenuMobile() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            const btnMenuMobile = document.getElementById('btn-menu-mobile');
+            const btnFecharSidebar = document.getElementById('btn-fechar-sidebar');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('-translate-x-full');
+                backdrop.classList.toggle('hidden');
+            }
+
+            btnMenuMobile.addEventListener('click', toggleSidebar);
+            btnFecharSidebar.addEventListener('click', toggleSidebar);
+            backdrop.addEventListener('click', toggleSidebar);
+
+            // Fechar menu ao clicar em uma opção no celular
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (window.innerWidth < 768) { 
+                        toggleSidebar();
+                    }
+                });
+            });
         }
 
         function configurarNavegacao() {
@@ -280,7 +364,7 @@
             });
         }
 
-        // ==================== LÓGICA DE PEDIDOS E DASHBOARD (API) ====================
+        // ==================== LÓGICA DE PEDIDOS E DASHBOARD ====================
         async function carregarPedidos() {
             try {
                 const res = await fetch('/api/pedidos');
@@ -293,8 +377,12 @@
         }
 
         function atualizarDashboardUI() {
-            const faturamento = pedidos.reduce((sum, p) => sum + parseFloat(p.total), 0);
-            const totalPedidos = pedidos.length;
+            // 1. Filtra os pedidos válidos (Tira os Cancelados da matemática)
+            const pedidosValidos = pedidos.filter(p => p.status !== 'Cancelado');
+
+            // 2. Faz as contas APENAS com os pedidos válidos
+            const faturamento = pedidosValidos.reduce((sum, p) => sum + parseFloat(p.total), 0);
+            const totalPedidos = pedidosValidos.length;
             const ticketMedio = totalPedidos > 0 ? (faturamento / totalPedidos) : 0;
 
             document.getElementById('dash-faturamento').textContent = `R$ ${faturamento.toFixed(2).replace('.', ',')}`;
@@ -304,24 +392,23 @@
             const tbody = document.getElementById('recent-orders-body');
             tbody.innerHTML = '';
             
-            // Pega os últimos pedidos para a tela inicial
+            // 3. Mantém a lista mostrando todos os últimos 10 pedidos (incluindo cancelados para registro)
             pedidos.slice(0, 10).forEach(p => {
-                // Lógica de cores baseada no status para ficar bonito
                 let corStatus = "bg-yellow-100 text-yellow-800";
                 if(p.status === 'Entregue') corStatus = "bg-green-100 text-green-800";
                 if(p.status === 'Cancelado') corStatus = "bg-red-100 text-red-800";
-                if(p.status === 'Preparando') corStatus = "bg-blue-100 text-blue-800";
+                if(p.status === 'Preparando' || p.status === 'Aprovado / Preparando') corStatus = "bg-blue-100 text-blue-800";
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition border-b">
-                        <td class="p-4 font-bold text-gray-800">#${p.id_pedido}</td>
-                        <td class="p-4 text-gray-600">
+                        <td class="p-3 md:p-4 font-bold text-gray-800">#${p.id_pedido}</td>
+                        <td class="p-3 md:p-4 text-gray-600">
                             <span class="font-bold block">${p.cliente_nome}</span>
-                            <span class="text-xs text-gray-400"><i class="fas fa-motorcycle"></i> ${p.endereco.substring(0, 25)}...</span>
+                            <span class="text-[10px] md:text-xs text-gray-400"><i class="fas fa-motorcycle"></i> ${p.endereco.substring(0, 25)}...</span>
                         </td>
-                        <td class="p-4 font-black text-gray-900">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
-                        <td class="p-4">
-                            <select onchange="atualizarStatusPedido('${p.id_pedido}', this.value)" class="${corStatus} text-xs font-bold px-2 py-1 rounded outline-none cursor-pointer border border-transparent hover:border-gray-300 transition">
+                        <td class="p-3 md:p-4 font-black ${p.status === 'Cancelado' ? 'text-red-400 line-through' : 'text-gray-900'}">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
+                        <td class="p-3 md:p-4">
+                            <select onchange="atualizarStatusPedido('${p.id_pedido}', this.value)" class="${corStatus} text-[10px] md:text-xs font-bold px-2 py-1.5 rounded outline-none cursor-pointer border border-transparent hover:border-gray-300 transition w-full md:w-auto">
                                 <option value="Aguardando Pagamento" ${p.status === 'Aguardando Pagamento' ? 'selected' : ''}>Aguardando Pagamento</option>
                                 <option value="Aprovado / Preparando" ${p.status === 'Aprovado / Preparando' ? 'selected' : ''}>Aprovado / Preparando</option>
                                 <option value="Saiu para Entrega" ${p.status === 'Saiu para Entrega' ? 'selected' : ''}>Saiu para Entrega</option>
@@ -333,11 +420,8 @@
                 `;
             });
         }
-
-        // Nova função para enviar a mudança de status pro Banco de Dados
         async function atualizarStatusPedido(idPedido, novoStatus) {
             try {
-                // 1. Envia a ordem pro Python (Vercel)
                 const res = await fetch(`/api/pedidos/${idPedido}/status`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -345,28 +429,20 @@
                 });
 
                 if (res.ok) {
-                    // 2. Atualiza a lista na memória do navegador
                     const pedidoAAlterar = pedidos.find(p => p.id_pedido == idPedido);
-                    if (pedidoAAlterar) {
-                        pedidoAAlterar.status = novoStatus;
-                    }
-                    
-                    // 3. Atualiza as telas para refletirem a nova cor
+                    if (pedidoAAlterar) pedidoAAlterar.status = novoStatus;
                     atualizarDashboardUI();
-                    
-                    // Toast/Aviso visual opcional
-                    console.log(`Pedido #${idPedido} atualizado para: ${novoStatus}`);
                 } else {
-                    alert("Erro ao atualizar o status no banco de dados.");
-                    carregarPedidos(); // Puxa do banco de novo se der erro para voltar ao original
+                    alert("Erro ao atualizar o status.");
+                    carregarPedidos();
                 }
             } catch (error) {
-                console.error("Erro:", error);
-                alert("Falha de conexão ao tentar atualizar o pedido.");
+                console.error(error);
+                carregarPedidos();
             }
         }
 
-        // ==================== LÓGICA DE PRODUTOS (API) ====================
+        // ==================== LÓGICA DE PRODUTOS ====================
         async function carregarProdutos() {
             try {
                 const res = await fetch('/api/produtos');
@@ -382,30 +458,112 @@
             tbody.innerHTML = '';
             produtos.forEach(prod => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="p-4">
-                            <div class="w-14 h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-100">
-                                <img src="${prod.foto}" alt="${prod.nome}" class="w-full h-full object-cover">
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="p-3">
+                            <div class="w-12 h-12 md:w-14 md:h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-100 relative">
+                                <img src="${prod.foto}" alt="${prod.nome}" class="w-full h-full object-contain p-1 relative z-10">
                             </div>
                         </td>
-                        <td class="p-4 font-bold text-gray-800 text-base">${prod.nome}</td>
-                        <td class="p-4"><span class="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">${prod.categoria}</span></td>
-                        <td class="p-4 font-semibold text-gray-800">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="excluirProduto(${prod.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Excluir">
-                                <i class="fas fa-trash-alt text-lg"></i>
-                            </button>
+                        <td class="p-3 font-bold text-gray-800 text-sm md:text-base">${prod.nome}</td>
+                        <td class="p-3"><span class="bg-gray-200 text-gray-700 text-[10px] md:text-xs font-bold px-2 py-1 md:px-3 md:py-1.5 rounded-full uppercase tracking-wide">${prod.categoria}</span></td>
+                        <td class="p-3 font-semibold text-gray-800 text-sm md:text-base">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</td>
+                        <td class="p-3 text-center">
+                            <div class="flex justify-center space-x-1 md:space-x-2">
+                                <button onclick="visualizarProduto(${prod.id})" class="text-blue-500 hover:bg-blue-100 p-1.5 md:p-2 rounded-lg transition" title="Visualizar">
+                                    <i class="fas fa-eye text-base md:text-lg"></i>
+                                </button>
+                                <button onclick="prepararEdicao(${prod.id})" class="text-yellow-600 hover:bg-yellow-100 p-1.5 md:p-2 rounded-lg transition" title="Editar">
+                                    <i class="fas fa-edit text-base md:text-lg"></i>
+                                </button>
+                                <button onclick="excluirProduto(${prod.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-1.5 md:p-2 rounded-lg transition" title="Excluir">
+                                    <i class="fas fa-trash-alt text-base md:text-lg"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
         }
 
+        // Ações: Visualizar Produto
+        function visualizarProduto(id) {
+            const prod = produtos.find(p => p.id === id);
+            if(prod) {
+                document.getElementById('view-foto').src = prod.foto;
+                document.getElementById('view-foto-fundo').src = prod.foto; // Atualiza o fundo embaçado
+                document.getElementById('view-nome').textContent = prod.nome;
+                document.getElementById('view-cat').textContent = prod.categoria;
+                document.getElementById('view-desc').textContent = prod.descricao;
+                document.getElementById('view-preco').textContent = `R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}`;
+                
+                document.getElementById('view-modal').classList.remove('hidden');
+            }
+        }
+
+        function fecharModalVisualizar() {
+            document.getElementById('view-modal').classList.add('hidden');
+        }
+
+        // Ações: Preparar Edição
+        function prepararEdicao(id) {
+            const prod = produtos.find(p => p.id === id);
+            if(prod) {
+                produtoEditandoId = prod.id;
+                fotoProdutoAntiga = prod.foto;
+
+                document.getElementById('prod-nome').value = prod.nome;
+                document.getElementById('prod-cat').value = prod.categoria;
+                document.getElementById('prod-preco').value = parseFloat(prod.preco);
+                document.getElementById('prod-desc').value = prod.descricao;
+                
+                document.getElementById('prod-foto').required = false;
+                document.getElementById('aviso-foto-edit').classList.remove('hidden');
+
+                document.getElementById('titulo-form-produto').innerHTML = `<i class="fas fa-edit text-yellow-500 mr-2"></i> Editando: ${prod.nome}`;
+                const formContainer = document.getElementById('form-container');
+                formContainer.classList.remove('border-red-600');
+                formContainer.classList.add('border-yellow-500', 'bg-yellow-50');
+
+                document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
+
+                const btnSalvar = document.getElementById('btn-salvar-produto');
+                btnSalvar.innerHTML = '<i class="fas fa-save mr-2"></i> Atualizar';
+                btnSalvar.classList.remove('bg-red-600', 'hover:bg-red-700');
+                btnSalvar.classList.add('bg-yellow-500', 'hover:bg-yellow-600', 'text-black');
+
+                window.scrollTo({ top: document.getElementById('produtos').offsetTop, behavior: 'smooth' });
+            }
+        }
+
+        function cancelarEdicao() {
+            produtoEditandoId = null;
+            fotoProdutoAntiga = "";
+            document.getElementById('form-produto').reset();
+            
+            document.getElementById('prod-foto').required = true;
+            document.getElementById('aviso-foto-edit').classList.add('hidden');
+
+            document.getElementById('titulo-form-produto').textContent = "Adicionar Novo Produto";
+            const formContainer = document.getElementById('form-container');
+            formContainer.classList.add('border-red-600');
+            formContainer.classList.remove('border-yellow-500', 'bg-yellow-50');
+
+            document.getElementById('btn-cancelar-edicao').classList.add('hidden');
+
+            const btnSalvar = document.getElementById('btn-salvar-produto');
+            btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
+            btnSalvar.classList.add('bg-red-600', 'hover:bg-red-700');
+            btnSalvar.classList.remove('bg-yellow-500', 'hover:bg-yellow-600', 'text-black');
+            
+            // ESSA É A LINHA MÁGICA QUE DESTRAVA O BOTÃO PARA O PRÓXIMO CADASTRO!
+            btnSalvar.disabled = false; 
+        }
+
         document.getElementById('form-produto').addEventListener('submit', function(e) {
             e.preventDefault();
             const btnSalvar = document.getElementById('btn-salvar-produto');
             btnSalvar.disabled = true;
-            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...';
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> ...';
 
             const nome = document.getElementById('prod-nome').value;
             const cat = document.getElementById('prod-cat').value;
@@ -415,55 +573,58 @@
 
             if (inputFoto.files && inputFoto.files[0]) {
                 const leitor = new FileReader();
-                leitor.onload = async function(eventoLeitura) {
-                    const fotoUrl = eventoLeitura.target.result;
-
-                    const novoProduto = {
-                        nome: nome,
-                        categoria: cat,
-                        preco: preco,
-                        foto: fotoUrl,
-                        descricao: desc
-                    };
-
-                    try {
-                        const res = await fetch('/api/produtos', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(novoProduto)
-                        });
-
-                        if (res.ok) {
-                            document.getElementById('form-produto').reset();
-                            carregarProdutos(); // Recarrega a lista do banco
-                            alert("Produto cadastrado com sucesso!");
-                        } else {
-                            alert("Erro ao cadastrar no banco de dados.");
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        alert("Falha na comunicação com a API.");
-                    } finally {
-                        btnSalvar.disabled = false;
-                        btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
-                    }
+                leitor.onload = function(eventoLeitura) {
+                    enviarRequisicaoProduto(nome, cat, preco, desc, eventoLeitura.target.result);
                 };
                 leitor.readAsDataURL(inputFoto.files[0]);
+            } else {
+                if (produtoEditandoId) {
+                    enviarRequisicaoProduto(nome, cat, preco, desc, fotoProdutoAntiga);
+                }
             }
         });
 
+        async function enviarRequisicaoProduto(nome, cat, preco, desc, foto) {
+            const payload = { nome, categoria: cat, preco, foto, descricao: desc };
+            let url = '/api/produtos';
+            let method = 'POST';
+
+            if (produtoEditandoId) {
+                url = `/api/produtos/${produtoEditandoId}`;
+                method = 'PUT';
+            }
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert(produtoEditandoId ? "Produto atualizado!" : "Produto cadastrado!");
+                    cancelarEdicao(); // Isso vai limpar o form e DESTRAVAR o botão
+                    carregarProdutos(); // Atualiza a tabela na mesma hora
+                } else {
+                    alert("Erro ao salvar no banco.");
+                    document.getElementById('btn-salvar-produto').disabled = false; // Destrava se der erro
+                    document.getElementById('btn-salvar-produto').innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Tentar Novamente';
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Falha na comunicação.");
+                document.getElementById('btn-salvar-produto').disabled = false; // Destrava se der erro
+                document.getElementById('btn-salvar-produto').innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Tentar Novamente';
+            }
+        }
+
         window.excluirProduto = async function(id) {
-            if(confirm("Tem certeza que deseja excluir este produto do cardápio?")) {
+            if(confirm("Deseja excluir este produto?")) {
                 try {
                     const res = await fetch(`/api/produtos/${id}`, { method: 'DELETE' });
-                    if (res.ok) {
-                        carregarProdutos(); // Atualiza a tela puxando do banco
-                    } else {
-                        alert("Erro ao excluir o produto.");
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
+                    if (res.ok) carregarProdutos();
+                    else alert("Erro ao excluir.");
+                } catch (error) { console.error(error); }
             }
         }
 
@@ -474,32 +635,40 @@
             let faturamentoTotal = 0;
 
             listaPedidos.forEach(p => {
-                faturamentoTotal += parseFloat(p.total);
+                // Só soma no faturamento se o pedido NÃO estiver Cancelado
+                if (p.status !== 'Cancelado') {
+                    faturamentoTotal += parseFloat(p.total);
+                }
 
-                // Formatar a data que vem do banco
                 let dataFormatada = "N/A";
                 if (p.data_criacao) {
                     const dataObj = new Date(p.data_criacao);
                     dataFormatada = dataObj.toLocaleDateString('pt-BR');
                 }
 
+                // Cria uma etiqueta visual caso o pedido esteja cancelado no relatório
+                let avisoCancelado = '';
+                let estiloValor = 'text-gray-900';
+                if (p.status === 'Cancelado') {
+                    avisoCancelado = `<span class="bg-red-100 text-red-800 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold uppercase">Cancelado</span>`;
+                    estiloValor = 'text-red-400 line-through'; // Risca o valor para mostrar que não foi somado
+                }
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition print:hover:bg-transparent">
-                        <td class="p-3 text-gray-700">${dataFormatada}</td>
-                        <td class="p-3 font-mono text-gray-500 text-xs">#${p.id_pedido}</td>
-                        <td class="p-3 text-gray-800">${p.itens}</td>
-                        <td class="p-3 text-right font-bold text-gray-900">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
+                        <td class="p-3 text-gray-700 whitespace-nowrap">${dataFormatada}</td>
+                        <td class="p-3 font-mono text-gray-500 text-xs">#${p.id_pedido} ${avisoCancelado}</td>
+                        <td class="p-3 text-gray-800 text-xs min-w-[200px]">${p.itens}</td>
+                        <td class="p-3 text-right font-bold ${estiloValor} whitespace-nowrap">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</td>
                     </tr>
                 `;
             });
-
             document.getElementById('total-relatorio').textContent = `R$ ${faturamentoTotal.toFixed(2).replace('.', ',')}`;
         }
 
         document.getElementById('btn-filtrar').addEventListener('click', () => {
             const inicio = document.getElementById('filtro-inicio').value;
             const fim = document.getElementById('filtro-fim').value;
-
             let pedidosFiltrados = pedidos;
 
             if (inicio) {
@@ -507,15 +676,13 @@
                 pedidosFiltrados = pedidosFiltrados.filter(p => new Date(p.data_criacao).getTime() >= dataInicio);
             }
             if (fim) {
-                // Adiciona 1 dia (86400000ms) para incluir o dia final inteiro até as 23:59
                 const dataFim = new Date(fim).getTime() + 86400000;
                 pedidosFiltrados = pedidosFiltrados.filter(p => new Date(p.data_criacao).getTime() <= dataFim);
             }
-
             renderizarRelatorioUI(pedidosFiltrados);
         });
 
-        // Chama a proteção de segurança imediatamente
+        // Executar
         verificarSenhaAdmin();
     </script>
 </body>
