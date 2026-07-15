@@ -28,11 +28,14 @@
 </head>
 <body class="bg-gray-50 font-sans pb-20 md:pb-0">
 
-    <!-- Header com Logo e Cores Originais JSC FOOD -->
+    <!-- Header com Logo Ajustado (Não corta as bordas) e Cores Originais -->
     <header class="bg-gray-900 text-white shadow-lg sticky top-0 z-40 border-b-4 border-red-600">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JSC FOOD" class="w-16 h-16 rounded-full border-2 border-white object-cover shadow-sm">
+            <div class="flex items-center space-x-4">
+                <!-- AJUSTE DO LOGO: Círculo maior, fundo branco e object-contain para não cortar -->
+                <div class="w-20 h-20 bg-white rounded-full shadow-md flex items-center justify-center overflow-hidden shrink-0 border-2 border-gray-300">
+                    <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="JCS FOODS" class="w-full h-full object-contain p-1">
+                </div>
                 <h1 class="text-2xl font-black tracking-wider uppercase">JCS FOODS</h1>
             </div>
 
@@ -47,14 +50,19 @@
 
     <!-- Menu Section -->
     <section id="menu" class="py-10 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <!-- Filtros de Categoria -->
-            <div class="flex justify-center mb-8 overflow-x-auto pb-2 scrollbar-hide">
-                <div class="flex space-x-2 bg-white p-1 rounded-full shadow-sm whitespace-nowrap border border-gray-200">
+        <div class="container mx-auto px-4 relative">
+            
+            <!-- Filtros de Categoria (Ajustado para rolar melhor e sinalizar no Mobile) -->
+            <div class="flex md:justify-center justify-start items-center mb-8 overflow-x-auto pb-3 scrollbar-hide relative">
+                <div class="flex space-x-2 bg-white p-1 rounded-full shadow-sm whitespace-nowrap border border-gray-200 items-center">
+                    <!-- Botão "Todos" já estava aqui e permanece -->
                     <button class="category-btn px-6 py-2 rounded-full bg-red-600 text-white font-bold transition" data-category="all">Todos</button>
                     <button class="category-btn px-6 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition" data-category="burgers">Hambúrgueres</button>
                     <button class="category-btn px-6 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition" data-category="sides">Acompanhamentos</button>
                     <button class="category-btn px-6 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition" data-category="drinks">Bebidas</button>
+                    
+                    <!-- SINALIZADOR VISUAL (Aparece apenas no celular para indicar rolagem sideways) -->
+                    <i class="fas fa-hand-point-right text-gray-300 pr-3 md:hidden animate-pulse"></i>
                 </div>
             </div>
 
@@ -70,15 +78,15 @@
     </section>
 
     <!-- ================= MODAL DE IMAGEM AMPLIADA ================= -->
-    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[60] hidden flex justify-center items-center backdrop-blur-sm transition-opacity">
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[60] hidden flex justify-center items-center backdrop-blur-sm transition-opacity p-4">
         <button onclick="closeImageModal()" class="absolute top-6 right-6 text-white hover:text-red-500 text-4xl transition z-10">
             <i class="fas fa-times"></i>
         </button>
-        <img id="modal-image-src" src="" alt="Imagem Ampliada" class="max-w-[90%] max-h-[90vh] object-contain rounded-xl shadow-2xl">
+        <img id="modal-image-src" src="" alt="Imagem Ampliada" class="max-w-[95%] max-h-[90vh] object-contain rounded-xl shadow-2xl">
     </div>
 
     <!-- ================= MODAL DA SACOLA ================= -->
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col no-print">
 
         <!-- Header da Sacola -->
         <div class="p-5 bg-gray-900 text-white flex justify-between items-center shadow-md">
@@ -159,7 +167,7 @@
 
     <script>
         // ================= DADOS DO RESTAURANTE =================
-        const NUMERO_WHATSAPP = "fone";
+        const NUMERO_WHATSAPP = "fone"; // Altere para o número real quando necessário
         const TAXA_ENTREGA = 5.00;
 
         let menuItems = [];
@@ -211,6 +219,9 @@
         // ================= BUSCAR DADOS NA API (PYTHON) =================
         async function carregarProdutos() {
             try {
+                // Simulação de delay para teste visual do loading
+                // await new Promise(resolve => setTimeout(resolve, 1000));
+                
                 const response = await fetch('/api/produtos');
                 if (!response.ok) throw new Error('Erro na resposta do servidor');
                 
@@ -248,7 +259,7 @@
             const filteredItems = category === 'all' ? menuItems : menuItems.filter(item => item.category === category);
 
             if (filteredItems.length === 0) {
-                menuItemsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhum produto nesta categoria.</p>';
+                menuItemsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-10">Nenhum produto cadastrado nesta categoria.</p>';
                 return;
             }
 
@@ -266,7 +277,7 @@
                     </div>
                     <div class="p-5 flex-1 flex flex-col">
                         <h3 class="text-xl font-bold text-gray-800 mb-1">${item.name}</h3>
-                        <p class="text-sm text-gray-500 mb-4 flex-1">${item.description}</p>
+                        <p class="text-sm text-gray-500 mb-4 flex-1 leading-relaxed">${item.description}</p>
                         <div class="flex justify-between items-center mt-auto border-t border-gray-100 pt-4">
                             <span class="text-2xl font-black text-gray-900">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
                             <button class="add-to-cart bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold transition shadow-sm"
@@ -352,7 +363,7 @@
                 cart.forEach(item => {
                     cartItemsContainer.innerHTML += `
                         <div class="cart-item-enter flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100">
-                            <div class="relative w-16 h-16 rounded-lg overflow-hidden mr-4 border border-gray-200 bg-gray-900">
+                            <div class="relative w-16 h-16 rounded-lg overflow-hidden mr-4 border border-gray-200 bg-gray-900 shrink-0">
                                 <img src="${item.img}" class="absolute inset-0 w-full h-full object-cover blur-sm opacity-50 scale-110">
                                 <img src="${item.img}" class="relative w-full h-full object-contain drop-shadow-md p-0.5">
                             </div>
@@ -360,7 +371,7 @@
                                 <h4 class="font-bold text-gray-800 text-sm mb-1">${item.name}</h4>
                                 <span class="font-semibold text-gray-500 text-sm">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
                             </div>
-                            <div class="flex items-center border border-gray-200 rounded-full px-2 py-1 bg-gray-50 ml-2">
+                            <div class="flex items-center border border-gray-200 rounded-full px-2 py-1 bg-gray-50 ml-2 shrink-0">
                                 <button class="text-gray-500 hover:text-red-600 w-6 flex items-center justify-center font-bold text-lg transition" onclick="changeQuantity('${item.id}', -1)">-</button>
                                 <span class="mx-1 font-bold text-sm w-5 text-center text-gray-800">${item.quantity}</span>
                                 <button class="text-gray-500 hover:text-green-600 w-6 flex items-center justify-center font-bold text-lg transition" onclick="changeQuantity('${item.id}', 1)">+</button>
@@ -409,7 +420,6 @@
                 return;
             }
 
-            // Tratamento da forma de pagamento + troco
             let formaPagamentoFormatada = pag;
             if (pag === 'Dinheiro') {
                 if (troco) {
@@ -440,7 +450,7 @@
                         cliente_nome: nome,
                         telefone: tel,
                         endereco: `${end} (Ref: ${ref})`,
-                        forma_pagamento: formaPagamentoFormatada, // Envia com o aviso de troco
+                        forma_pagamento: formaPagamentoFormatada, 
                         itens: itensTexto.replace(/\n/g, ', '), 
                         total: totalFinal,
                         status: "Aguardando Pagamento"
