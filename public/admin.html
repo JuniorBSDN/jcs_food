@@ -20,10 +20,11 @@
 </head>
 <body class="bg-gray-100 font-sans flex flex-col md:flex-row min-h-screen hidden" id="admin-body">
 
-    <!-- CABEÇALHO MOBILE (Visível apenas em telas pequenas) -->
     <div class="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center shadow-md z-20 no-print">
         <div class="flex items-center space-x-3">
-            <img src="https://i.imgur.com/zjaVmuG.jpeg" class="w-12 h-12 rounded-full border-2 border-gray-700 object-cover">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center overflow-hidden border border-gray-700 shrink-0">
+                <img src="https://i.imgur.com/zjaVmuG.jpeg" class="w-full h-full object-contain p-0.5">
+            </div>
             <h1 class="text-xl font-bold tracking-wider">ADMINISTRAÇÃO</h1>
         </div>
         <button id="btn-menu-mobile" class="text-2xl hover:text-red-500 transition focus:outline-none">
@@ -31,17 +32,15 @@
         </button>
     </div>
 
-    <!-- BARRA LATERAL (Sidebar) -->
     <aside id="sidebar" class="w-64 bg-gray-900 text-white p-4 no-print flex flex-col shadow-2xl z-40 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out h-full">
         
-        <!-- Botão fechar (Apenas Mobile) -->
         <button id="btn-fechar-sidebar" class="md:hidden absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">
             <i class="fas fa-times"></i>
         </button>
 
         <div class="flex flex-col items-center justify-center mt-6 mb-10 border-b border-gray-700 pb-6 hidden md:flex">
-            <div class="w-28 h-28 bg-white rounded-full p-1 shadow-lg mb-4 flex items-center justify-center overflow-hidden">
-                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="Logotipo JSC FOOD" class="w-full h-full object-cover rounded-full">
+            <div class="w-28 h-28 bg-white rounded-full p-2 shadow-lg mb-4 flex items-center justify-center overflow-hidden border border-gray-700 shrink-0">
+                <img src="https://i.imgur.com/zjaVmuG.jpeg" alt="Logotipo JSC FOOD" class="w-full h-full object-contain">
             </div>
             <h2 class="text-xl font-bold text-white tracking-wider">ADMINISTRAÇÃO</h2>
         </div>
@@ -67,13 +66,10 @@
         </div>
     </aside>
 
-    <!-- BACKDROP ESCURO (Fundo escuro ao abrir menu no mobile) -->
     <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-30 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 p-4 md:p-8 print-container overflow-y-auto relative w-full">
 
-        <!-- MODAL DE VISUALIZAÇÃO DE PRODUTO -->
         <div id="view-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex justify-center items-center backdrop-blur-sm no-print p-4">
             <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full relative">
                 <button onclick="fecharModalVisualizar()" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl transition z-20"><i class="fas fa-times"></i></button>
@@ -91,7 +87,6 @@
             </div>
         </div>
 
-        <!-- DASHBOARD -->
         <section id="dashboard" class="tab-content block">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8">Visão Geral</h1>
 
@@ -132,7 +127,6 @@
             </div>
         </section>
 
-        <!-- PRODUTOS -->
         <section id="produtos" class="tab-content hidden no-print">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8">Gerenciar Cardápio</h1>
 
@@ -197,7 +191,6 @@
             </div>
         </section>
 
-        <!-- RELATÓRIOS -->
         <section id="relatorios" class="tab-content hidden">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 no-print border-b pb-4 space-y-4 md:space-y-0">
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Relatório de Vendas</h1>
@@ -267,7 +260,7 @@
         let fotoProdutoAntiga = "";
 
         async function verificarSenhaAdmin() {
-            const senhaDigitada = prompt("🔒 Área Restrita - JCS FOODS\n\nPor favor, insira a senha de gestor:");
+            const senhaDigitada = prompt("🔒 Área Restrita - JSC FOOD\n\nPor favor, insira a senha de administrador:");
 
             if (!senhaDigitada) {
                 bloquearTela();
@@ -333,7 +326,6 @@
             btnFecharSidebar.addEventListener('click', toggleSidebar);
             backdrop.addEventListener('click', toggleSidebar);
 
-            // Fechar menu ao clicar em uma opção no celular
             const navBtns = document.querySelectorAll('.nav-btn');
             navBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -377,10 +369,7 @@
         }
 
         function atualizarDashboardUI() {
-            // 1. Filtra os pedidos válidos (Tira os Cancelados da matemática)
             const pedidosValidos = pedidos.filter(p => p.status !== 'Cancelado');
-
-            // 2. Faz as contas APENAS com os pedidos válidos
             const faturamento = pedidosValidos.reduce((sum, p) => sum + parseFloat(p.total), 0);
             const totalPedidos = pedidosValidos.length;
             const ticketMedio = totalPedidos > 0 ? (faturamento / totalPedidos) : 0;
@@ -392,7 +381,6 @@
             const tbody = document.getElementById('recent-orders-body');
             tbody.innerHTML = '';
             
-            // 3. Mantém a lista mostrando todos os últimos 10 pedidos (incluindo cancelados para registro)
             pedidos.slice(0, 10).forEach(p => {
                 let corStatus = "bg-yellow-100 text-yellow-800";
                 if(p.status === 'Entregue') corStatus = "bg-green-100 text-green-800";
@@ -420,6 +408,7 @@
                 `;
             });
         }
+
         async function atualizarStatusPedido(idPedido, novoStatus) {
             try {
                 const res = await fetch(`/api/pedidos/${idPedido}/status`, {
@@ -460,8 +449,9 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100">
                         <td class="p-3">
-                            <div class="w-12 h-12 md:w-14 md:h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-100 relative">
-                                <img src="${prod.foto}" alt="${prod.nome}" class="w-full h-full object-contain p-1 relative z-10">
+                            <div class="w-12 h-12 md:w-14 md:h-14 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-900 relative">
+                                <img src="${prod.foto}" class="absolute inset-0 w-full h-full object-cover blur-sm opacity-50 scale-110">
+                                <img src="${prod.foto}" alt="${prod.nome}" class="relative w-full h-full object-contain p-1 z-10 drop-shadow-md">
                             </div>
                         </td>
                         <td class="p-3 font-bold text-gray-800 text-sm md:text-base">${prod.nome}</td>
@@ -485,12 +475,11 @@
             });
         }
 
-        // Ações: Visualizar Produto
         function visualizarProduto(id) {
             const prod = produtos.find(p => p.id === id);
             if(prod) {
                 document.getElementById('view-foto').src = prod.foto;
-                document.getElementById('view-foto-fundo').src = prod.foto; // Atualiza o fundo embaçado
+                document.getElementById('view-foto-fundo').src = prod.foto;
                 document.getElementById('view-nome').textContent = prod.nome;
                 document.getElementById('view-cat').textContent = prod.categoria;
                 document.getElementById('view-desc').textContent = prod.descricao;
@@ -504,7 +493,6 @@
             document.getElementById('view-modal').classList.add('hidden');
         }
 
-        // Ações: Preparar Edição
         function prepararEdicao(id) {
             const prod = produtos.find(p => p.id === id);
             if(prod) {
@@ -554,8 +542,6 @@
             btnSalvar.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Cadastrar Produto';
             btnSalvar.classList.add('bg-red-600', 'hover:bg-red-700');
             btnSalvar.classList.remove('bg-yellow-500', 'hover:bg-yellow-600', 'text-black');
-            
-            // ESSA É A LINHA MÁGICA QUE DESTRAVA O BOTÃO PARA O PRÓXIMO CADASTRO!
             btnSalvar.disabled = false; 
         }
 
@@ -563,7 +549,7 @@
             e.preventDefault();
             const btnSalvar = document.getElementById('btn-salvar-produto');
             btnSalvar.disabled = true;
-            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> ...';
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processando...';
 
             const nome = document.getElementById('prod-nome').value;
             const cat = document.getElementById('prod-cat').value;
@@ -603,18 +589,16 @@
 
                 if (res.ok) {
                     alert(produtoEditandoId ? "Produto atualizado!" : "Produto cadastrado!");
-                    cancelarEdicao(); // Isso vai limpar o form e DESTRAVAR o botão
-                    carregarProdutos(); // Atualiza a tabela na mesma hora
+                    cancelarEdicao(); 
+                    carregarProdutos(); 
                 } else {
                     alert("Erro ao salvar no banco.");
-                    document.getElementById('btn-salvar-produto').disabled = false; // Destrava se der erro
-                    document.getElementById('btn-salvar-produto').innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Tentar Novamente';
+                    document.getElementById('btn-salvar-produto').disabled = false;
                 }
             } catch (error) {
                 console.error(error);
                 alert("Falha na comunicação.");
-                document.getElementById('btn-salvar-produto').disabled = false; // Destrava se der erro
-                document.getElementById('btn-salvar-produto').innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Tentar Novamente';
+                document.getElementById('btn-salvar-produto').disabled = false;
             }
         }
 
@@ -635,23 +619,20 @@
             let faturamentoTotal = 0;
 
             listaPedidos.forEach(p => {
-                // Só soma no faturamento se o pedido NÃO estiver Cancelado
                 if (p.status !== 'Cancelado') {
                     faturamentoTotal += parseFloat(p.total);
                 }
-
                 let dataFormatada = "N/A";
                 if (p.data_criacao) {
                     const dataObj = new Date(p.data_criacao);
                     dataFormatada = dataObj.toLocaleDateString('pt-BR');
                 }
 
-                // Cria uma etiqueta visual caso o pedido esteja cancelado no relatório
                 let avisoCancelado = '';
                 let estiloValor = 'text-gray-900';
                 if (p.status === 'Cancelado') {
                     avisoCancelado = `<span class="bg-red-100 text-red-800 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold uppercase">Cancelado</span>`;
-                    estiloValor = 'text-red-400 line-through'; // Risca o valor para mostrar que não foi somado
+                    estiloValor = 'text-red-400 line-through';
                 }
 
                 tbody.innerHTML += `
@@ -682,7 +663,6 @@
             renderizarRelatorioUI(pedidosFiltrados);
         });
 
-        // Executar
         verificarSenhaAdmin();
     </script>
 </body>
